@@ -327,15 +327,15 @@ function loadHash(){
   }catch(e){}
 }
 
-// Click toggles minimize. We send the EXPLICIT desired state (not "toggle") so
-// duplicate/echoed events can't flip-flop. Debounced to ignore rapid re-fires.
+// Click toggles minimize: flip the view optimistically and ping the script once.
+// Debounced so a doubled click can't double-fire; LSL reconciles via the next push.
 document.addEventListener("click", function(){
   var now = Date.now();
   if(!lslUrl || now - lastClick < 600) return;
   lastClick = now;
   mini = !mini;
-  document.body.classList.toggle("mini", mini);   // optimistic; LSL confirms
-  fetch(lslUrl + "?m=" + (mini ? "1" : "0"), {mode:"no-cors", cache:"no-store"});
+  document.body.classList.toggle("mini", mini);
+  fetch(lslUrl, {mode:"no-cors", cache:"no-store"});
 });
 
 window.addEventListener("hashchange", loadHash);
