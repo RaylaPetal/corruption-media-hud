@@ -110,9 +110,31 @@
   .clk svg{width:3.6vmin;height:3.6vmin;stroke:var(--pur);fill:none;stroke-width:1.6;flex:none}
   .clk .k{font-size:1.4vmin;letter-spacing:.16vmin;color:var(--muted);text-transform:uppercase}
   .clk .v{font-size:2.6vmin;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+
+  /* ── MINI (collapsed) view: just the prestige circle ─────────────── */
+  #miniView{
+    position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 45%,#15101f,#070710 70%);
+  }
+  body.mini #miniView{display:flex}
+  body.mini .panel{display:none}
+  .mini-emblem{
+    width:78vmin;height:78vmin;border-radius:50%;position:relative;
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 40%,#2a1d52,#0c0a1c 70%);
+    border:3vmin solid #2c2150;
+    box-shadow:0 0 16vmin rgba(150,100,255,.5),inset 0 0 10vmin rgba(150,100,255,.3);
+  }
+  .mini-emblem::before{content:"";position:absolute;inset:6vmin;border-radius:50%;
+    border:1.2vmin solid rgba(170,130,255,.5)}
+  .mini-emblem span{font-size:38vmin;font-weight:800;color:#d8c7ff;
+    text-shadow:0 0 8vmin rgba(160,110,255,.85)}
 </style>
 </head>
 <body>
+
+  <!-- MINI (collapsed) button -->
+  <div id="miniView"><div class="mini-emblem"><span id="miniBadge">0</span></div></div>
 
   <!-- CORRUPTION RANK -->
   <div class="panel">
@@ -180,7 +202,7 @@
         </div>
         <div class="stat">
           <svg viewBox="0 0 24 24"><path d="M4 4l9 9M4 8V4h4M20 4l-9 9M20 8V4h-4M5 20l5-5M19 20l-5-5"/></svg>
-          <div><div class="k">Hit Count</div><div class="v" id="totHits">0</div></div>
+          <div><div class="k">Loads Received</div><div class="v" id="totHits">0</div></div>
         </div>
       </div>
       <div style="border-left:1px solid var(--stroke);padding-left:3vmin">
@@ -191,7 +213,7 @@
         </div>
         <div class="stat">
           <svg viewBox="0 0 24 24"><path d="M4 4l9 9M4 8V4h4M20 4l-9 9M20 8V4h-4M5 20l5-5M19 20l-5-5"/></svg>
-          <div><div class="k">Hit Count</div><div class="v" id="sesHits">0</div></div>
+          <div><div class="k">Loads Received</div><div class="v" id="sesHits">0</div></div>
         </div>
       </div>
     </div>
@@ -238,6 +260,10 @@ function render(d){
 
   // Emblem shows current PRESTIGE (roman; "0" until first prestige)
   document.getElementById("badge").textContent = roman(pr);
+  document.getElementById("miniBadge").textContent = roman(pr);
+
+  // Collapsed/mini mode (set by the HUD script on click)
+  document.body.classList.toggle("mini", (+d.m) === 1);
   document.getElementById("rankName").textContent = (d.ct||"").toUpperCase();
   document.getElementById("rankSub").textContent  = "RANK " + roman(ti+1);
   document.getElementById("rankNext").textContent =
