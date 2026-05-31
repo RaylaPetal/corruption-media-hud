@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Corruption HUD</title>
+<style>
+  :root{
+    --bg:#070710;
+    --panel:#0d0d18;
+    --panel2:#10101e;
+    --stroke:rgba(140,110,210,0.18);
+    --stroke2:rgba(140,110,210,0.30);
+    --pur:#9a6cff;
+    --pur-bright:#b98cff;
+    --pur-dim:#6b54a8;
+    --txt:#e9e6f5;
+    --muted:#7d7a93;
+    --track:#1b1b2c;
+    --grad:linear-gradient(90deg,#6a3df0,#a96bff 60%,#c79bff);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;background:var(--bg);overflow:hidden}
+  body{
+    font-family:"Segoe UI",Roboto,Arial,sans-serif;
+    color:var(--txt);
+    display:flex;flex-direction:column;
+    gap:1.4vmin;padding:2vmin;
+    -webkit-font-smoothing:antialiased;
+  }
+  .panel{
+    background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--stroke);
+    border-radius:2.2vmin;
+    padding:2.4vmin 2.8vmin;
+    position:relative;
+  }
+  .ttl{
+    font-size:1.9vmin;font-weight:700;letter-spacing:.28vmin;color:#cfc7ee;
+    text-transform:uppercase;display:flex;align-items:center;gap:1vmin;margin-bottom:1.6vmin;
+  }
+  .ttl::before{content:"";width:.55vmin;height:2.1vmin;background:var(--pur);border-radius:1vmin}
+  .muted{color:var(--muted)}
+  .pur{color:var(--pur-bright)}
+
+  /* ── RANK ─────────────────────────────────── */
+  .rank{display:grid;grid-template-columns:auto 1fr;gap:3vmin;align-items:center}
+  .emblem{
+    width:15vmin;height:15vmin;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 40%,#2a1d52,#0c0a1c 70%);
+    border:0.5vmin solid #2c2150;
+    box-shadow:0 0 4vmin rgba(150,100,255,.35),inset 0 0 2vmin rgba(150,100,255,.25);
+    position:relative;
+  }
+  .emblem::before{
+    content:"";position:absolute;inset:1.2vmin;border-radius:50%;
+    border:0.25vmin solid rgba(170,130,255,.45);
+  }
+  .emblem span{font-size:5.6vmin;font-weight:800;color:#d8c7ff;text-shadow:0 0 2vmin rgba(160,110,255,.8)}
+  .rank-name{font-size:4.2vmin;font-weight:800;color:var(--pur-bright);line-height:1;letter-spacing:.1vmin}
+  .rank-sub{font-size:2vmin;font-weight:700;letter-spacing:.2vmin;margin-top:1vmin}
+  .rank-next{font-size:1.7vmin;letter-spacing:.12vmin;margin-top:.6vmin}
+  .cp-row{display:flex;justify-content:flex-end;font-size:2vmin;font-weight:700;margin-bottom:1vmin}
+  .tagline{font-size:1.7vmin;letter-spacing:.25vmin;text-align:center;margin-top:1.2vmin;color:#8e88a8}
+
+  /* ── BARS ─────────────────────────────────── */
+  .bar{height:1.5vmin;background:var(--track);border-radius:1vmin;overflow:hidden;position:relative}
+  .bar>i{display:block;height:100%;background:var(--grad);border-radius:1vmin;
+         box-shadow:0 0 1.6vmin rgba(160,110,255,.6);transition:width .5s ease}
+  .seg{position:absolute;top:0;bottom:0;width:1px;background:rgba(0,0,0,.55)}
+
+  /* ── XP ───────────────────────────────────── */
+  .xp-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.2vmin}
+  .lvl{display:flex;align-items:baseline;gap:1vmin}
+  .lvl b{font-size:1.8vmin;letter-spacing:.2vmin;color:var(--muted)}
+  .lvl em{font-size:4.4vmin;font-weight:800;font-style:normal;color:#fff;line-height:1}
+  .xp-val{font-size:2vmin;font-weight:700}
+  .xp-next{text-align:center;font-size:1.6vmin;letter-spacing:.14vmin;margin-top:1vmin}
+
+  /* ── CLIMAX ───────────────────────────────── */
+  .climax{display:grid;grid-template-columns:auto auto 1fr;gap:3vmin;align-items:center}
+  .gauge{
+    width:13vmin;height:13vmin;border-radius:50%;position:relative;
+    background:conic-gradient(var(--pur) calc(var(--p)*1%),var(--track) 0);
+    -webkit-mask:radial-gradient(circle,transparent 4.6vmin,#000 4.7vmin);
+            mask:radial-gradient(circle,transparent 4.6vmin,#000 4.7vmin);
+    filter:drop-shadow(0 0 1.5vmin rgba(160,110,255,.5));
+  }
+  .gauge-core{
+    position:absolute;inset:2.2vmin;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle,#241842,#0d0a1e);
+    font-size:3.4vmin;
+  }
+  .climax-pct{font-size:4.6vmin;font-weight:800;color:var(--pur-bright);line-height:1}
+  .climax-lbl{font-size:1.6vmin;letter-spacing:.2vmin;color:var(--muted)}
+  .seg-bar{position:relative}
+
+  /* ── STATS GRID ───────────────────────────── */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:1.4vmin}
+  .stat{display:flex;align-items:center;gap:1.8vmin;margin:1.2vmin 0}
+  .stat svg{width:3.4vmin;height:3.4vmin;stroke:var(--pur);fill:none;stroke-width:1.6;flex:none}
+  .stat .k{font-size:1.5vmin;letter-spacing:.18vmin;color:var(--muted);text-transform:uppercase}
+  .stat .v{font-size:2.6vmin;font-weight:800;color:#fff}
+  .divider{width:1px;background:var(--stroke);margin:0 1vmin}
+
+  .timers{display:grid;grid-template-columns:1fr 1fr;gap:1.4vmin}
+  .clk{display:flex;align-items:center;gap:1.8vmin}
+  .clk svg{width:3.6vmin;height:3.6vmin;stroke:var(--pur);fill:none;stroke-width:1.6;flex:none}
+  .clk .k{font-size:1.4vmin;letter-spacing:.16vmin;color:var(--muted);text-transform:uppercase}
+  .clk .v{font-size:2.6vmin;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+
+  <!-- CORRUPTION RANK -->
+  <div class="panel">
+    <div class="ttl">Corruption Rank</div>
+    <div class="rank">
+      <div class="emblem"><span id="badge">I</span></div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="rank-name" id="rankName">INNOCENT</div>
+            <div class="rank-sub pur" id="rankSub">RANK I</div>
+            <div class="rank-next muted" id="rankNext">NEXT RANK: II</div>
+          </div>
+          <div style="flex:1;margin-left:3vmin;min-width:40%">
+            <div class="cp-row"><span class="pur" id="cpText">0 / 0 CP</span></div>
+            <div class="bar"><i id="cpFill" style="width:0%"></i></div>
+            <div class="tagline">Indulge.&nbsp;&nbsp;Descend.&nbsp;&nbsp;Become.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- XP -->
+  <div class="panel">
+    <div class="ttl">XP</div>
+    <div class="xp-head">
+      <div class="lvl"><b>LVL</b><em id="lvl">1</em></div>
+      <div class="xp-val pur" id="xpText">0 / 0 XP</div>
+    </div>
+    <div class="bar"><i id="xpFill" style="width:0%"></i></div>
+    <div class="xp-next muted" id="xpNext">0 XP TO NEXT LEVEL</div>
+  </div>
+
+  <!-- CLIMAX -->
+  <div class="panel">
+    <div class="ttl">Climax Meter</div>
+    <div class="climax">
+      <div class="gauge" id="gauge" style="--p:0"><div class="gauge-core">🔥</div></div>
+      <div>
+        <div class="climax-pct" id="climaxPct">0%</div>
+        <div class="climax-lbl">CURRENT CLIMAX</div>
+      </div>
+      <div class="seg-bar">
+        <div class="bar" style="height:2vmin"><i id="climaxFill" style="width:0%"></i>
+          <span class="seg" style="left:25%"></span>
+          <span class="seg" style="left:50%"></span>
+          <span class="seg" style="left:75%"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:1.4vmin;color:var(--muted);margin-top:.8vmin">
+          <span>25%</span><span>50%</span><span>75%</span><span>100%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOTAL / SESSION -->
+  <div class="panel">
+    <div class="cols">
+      <div>
+        <div class="ttl">Total</div>
+        <div class="stat">
+          <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17" cy="8.5" r="2.6"/><path d="M15.5 14.2c2.6.2 5 2.1 5 4.8"/></svg>
+          <div><div class="k">Partners</div><div class="v" id="totPart">0</div></div>
+        </div>
+        <div class="stat">
+          <svg viewBox="0 0 24 24"><path d="M4 4l9 9M4 8V4h4M20 4l-9 9M20 8V4h-4M5 20l5-5M19 20l-5-5"/></svg>
+          <div><div class="k">Hit Count</div><div class="v" id="totHits">0</div></div>
+        </div>
+      </div>
+      <div style="border-left:1px solid var(--stroke);padding-left:3vmin">
+        <div class="ttl">Session</div>
+        <div class="stat">
+          <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17" cy="8.5" r="2.6"/><path d="M15.5 14.2c2.6.2 5 2.1 5 4.8"/></svg>
+          <div><div class="k">Partners</div><div class="v" id="sesPart">0</div></div>
+        </div>
+        <div class="stat">
+          <svg viewBox="0 0 24 24"><path d="M4 4l9 9M4 8V4h4M20 4l-9 9M20 8V4h-4M5 20l5-5M19 20l-5-5"/></svg>
+          <div><div class="k">Hit Count</div><div class="v" id="sesHits">0</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMERS -->
+  <div class="panel">
+    <div class="timers">
+      <div class="clk">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <div><div class="k">Time Since Last Activity</div><div class="v" id="sinceAct">00:00:00</div></div>
+      </div>
+      <div class="clk">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="3 3"/><path d="M12 7v5l3 2"/></svg>
+        <div><div class="k">Idle Timer</div><div class="v" id="idleTimer">00:00:00</div></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+"use strict";
+var TITLES = ["Innocent One","Curious Kitten","Naughty Girl","Slutty","Filthy Slut",
+              "Cum Slut","Depraved Whore","Cock Addict","Mindless Fucktoy","Cum Dumpster"];
+var ROMAN = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
+
+var state = null;       // last parsed payload
+var clockOffset = 0;    // serverNow - clientNow (seconds)
+
+function roman(n){ if(n>=1 && n<=10) return ROMAN[n-1]; return ""+n; }
+function commas(n){ return Number(n).toLocaleString("en-US"); }
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+
+function fmtClock(secs){
+  if(secs<0) secs=0;
+  var h=Math.floor(secs/3600), m=Math.floor((secs%3600)/60), s=Math.floor(secs%60);
+  var p=function(x){return (x<10?"0":"")+x;};
+  return p(h)+":"+p(m)+":"+p(s);
+}
+
+function render(d){
+  var xp=+d.xp, lv=+d.lv, pr=+d.pr, ti=+d.ti;
+  var pg=+d.pg, lb=+d.lb, lt=+d.lt, cl=+d.cl;
+  var dispLvl = pr*10 + lv;
+
+  // RANK badge: prestige numeral if prestiged, else rank numeral
+  document.getElementById("badge").textContent = pr>0 ? roman(pr) : roman(ti+1);
+  document.getElementById("rankName").textContent = (d.ct||"").toUpperCase();
+  document.getElementById("rankSub").textContent  = "RANK " + roman(ti+1);
+  document.getElementById("rankNext").textContent =
+     d.nt ? ("NEXT RANK: " + roman(ti+2) + " - " + d.nt.toUpperCase()) : "MAX RANK REACHED";
+
+  // CP bar (total XP toward prestige goal)
+  if(xp>=pg && pg>0){
+    document.getElementById("cpText").textContent = "PRESTIGE READY";
+    document.getElementById("cpFill").style.width = "100%";
+  } else {
+    document.getElementById("cpText").textContent = commas(xp)+" / "+commas(pg)+" CP";
+    document.getElementById("cpFill").style.width = (pg>0 ? clamp(xp/pg,0,1)*100 : 0)+"%";
+  }
+
+  // XP bar within current level
+  document.getElementById("lvl").textContent = dispLvl;
+  document.getElementById("xpText").textContent = commas(xp)+" / "+commas(lt)+" XP";
+  var range = lt-lb, cur = xp-lb;
+  document.getElementById("xpFill").style.width = (range>0 ? clamp(cur/range,0,1)*100 : 100)+"%";
+  document.getElementById("xpNext").textContent = commas(Math.max(0,lt-xp))+" XP TO NEXT LEVEL";
+
+  // CLIMAX
+  var pct = Math.round(clamp(cl,0,1)*100);
+  document.getElementById("climaxPct").textContent = pct+"%";
+  document.getElementById("gauge").style.setProperty("--p", pct);
+  document.getElementById("climaxFill").style.width = pct+"%";
+
+  // STATS
+  document.getElementById("totPart").textContent = commas(d.tp);
+  document.getElementById("totHits").textContent = commas(d.th);
+  document.getElementById("sesPart").textContent = commas(d.sp);
+  document.getElementById("sesHits").textContent = commas(d.sh);
+
+  // clock sync
+  clockOffset = (+d.nw) - Math.floor(Date.now()/1000);
+  tickClocks();
+}
+
+function tickClocks(){
+  if(!state) return;
+  var now = Math.floor(Date.now()/1000) + clockOffset;
+  var since = now - (+state.lc);
+  var idleLeft = (+state.it) - since;
+  document.getElementById("sinceAct").textContent  = fmtClock(since);
+  document.getElementById("idleTimer").textContent = fmtClock(idleLeft);
+}
+
+function loadHash(){
+  var h = location.hash.slice(1);
+  if(!h) return;
+  try{
+    state = JSON.parse(decodeURIComponent(h));
+    render(state);
+  }catch(e){}
+}
+
+window.addEventListener("hashchange", loadHash);
+setInterval(tickClocks, 1000);
+loadHash();
+</script>
+</body>
+</html>
