@@ -29,7 +29,7 @@
     -webkit-font-smoothing:antialiased;
   }
   /* Collapsed: transparent everywhere so only the round emblem shows */
-  body.mini{background:transparent}
+  html.mini{background:transparent}
   .panel{
     background:linear-gradient(180deg,var(--panel),var(--panel2));
     border:1px solid var(--stroke);
@@ -118,8 +118,8 @@
     position:fixed;inset:0;display:none;align-items:center;justify-content:center;
     background:transparent;   /* transparent corners → only the circle shows */
   }
-  body.mini #miniView{display:flex}
-  body.mini .panel{display:none}
+  html.mini #miniView{display:flex}
+  html.mini .panel{display:none}
   .mini-emblem{
     width:78vmin;height:78vmin;border-radius:50%;position:relative;
     display:flex;align-items:center;justify-content:center;
@@ -132,6 +132,16 @@
   .mini-emblem span{font-size:38vmin;font-weight:800;color:#d8c7ff;
     text-shadow:0 0 8vmin rgba(160,110,255,.85)}
 </style>
+<script>
+// Decide mini/full BEFORE the body paints so a reload never flashes the full
+// layout while collapsed.
+(function(){
+  try{
+    var d = JSON.parse(decodeURIComponent(location.hash.slice(1)));
+    if((+d.m) === 1) document.documentElement.className = "mini";
+  }catch(e){}
+})();
+</script>
 </head>
 <body>
 
@@ -269,7 +279,7 @@ function render(d){
 
   // Collapsed/mini mode — LSL is the source of truth, sync our view to it
   mini = (+d.m) === 1;
-  document.body.classList.toggle("mini", mini);
+  document.documentElement.classList.toggle("mini", mini);
   if (d.u) lslUrl = d.u;   // URL to ping for minimize toggle
   document.getElementById("rankName").textContent = (d.ct||"").toUpperCase();
   document.getElementById("rankSub").textContent  = "RANK " + roman(ti+1);
@@ -334,7 +344,7 @@ document.addEventListener("click", function(){
   if(!lslUrl || now - lastClick < 600) return;
   lastClick = now;
   mini = !mini;
-  document.body.classList.toggle("mini", mini);
+  document.documentElement.classList.toggle("mini", mini);
   fetch(lslUrl, {mode:"no-cors", cache:"no-store"});
 });
 
