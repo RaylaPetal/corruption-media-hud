@@ -241,6 +241,7 @@ var ROMAN = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
 
 var state = null;       // last parsed payload
 var clockOffset = 0;    // serverNow - clientNow (seconds)
+var lslUrl = "";        // HUD script URL to ping on click (minimize toggle)
 
 function roman(n){ if(n>=1 && n<=10) return ROMAN[n-1]; return ""+n; }
 function commas(n){ return Number(n).toLocaleString("en-US"); }
@@ -264,6 +265,7 @@ function render(d){
 
   // Collapsed/mini mode (set by the HUD script on click)
   document.body.classList.toggle("mini", (+d.m) === 1);
+  if (d.u) lslUrl = d.u;   // URL to ping for minimize toggle
   document.getElementById("rankName").textContent = (d.ct||"").toUpperCase();
   document.getElementById("rankSub").textContent  = "RANK " + roman(ti+1);
   document.getElementById("rankNext").textContent =
@@ -319,6 +321,12 @@ function loadHash(){
     render(state);
   }catch(e){}
 }
+
+// Clicking anywhere on the HUD pings the LSL script to toggle minimize.
+// no-cors: we don't need the response, just to deliver the request cross-origin.
+document.addEventListener("click", function(){
+  if(lslUrl) fetch(lslUrl, {mode:"no-cors", cache:"no-store"});
+});
 
 window.addEventListener("hashchange", loadHash);
 setInterval(tickClocks, 1000);
