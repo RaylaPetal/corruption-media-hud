@@ -24,20 +24,20 @@
   body{
     font-family:"Segoe UI",Roboto,Arial,sans-serif;
     color:var(--txt);
-    display:flex;flex-direction:column;
-    gap:1.4vmin;padding:2vmin;
+    display:flex;flex-direction:column;justify-content:space-between;
+    gap:1vmin;padding:1.4vmin;
     -webkit-font-smoothing:antialiased;
   }
   .panel{
     background:linear-gradient(180deg,var(--panel),var(--panel2));
     border:1px solid var(--stroke);
-    border-radius:2.2vmin;
-    padding:2.4vmin 2.8vmin;
+    border-radius:1.8vmin;
+    padding:1.6vmin 2.4vmin;
     position:relative;
   }
   .ttl{
-    font-size:1.9vmin;font-weight:700;letter-spacing:.28vmin;color:#cfc7ee;
-    text-transform:uppercase;display:flex;align-items:center;gap:1vmin;margin-bottom:1.6vmin;
+    font-size:1.8vmin;font-weight:700;letter-spacing:.28vmin;color:#cfc7ee;
+    text-transform:uppercase;display:flex;align-items:center;gap:1vmin;margin-bottom:1vmin;
   }
   .ttl::before{content:"";width:.55vmin;height:2.1vmin;background:var(--pur);border-radius:1vmin}
   .muted{color:var(--muted)}
@@ -46,7 +46,7 @@
   /* ── RANK ─────────────────────────────────── */
   .rank{display:grid;grid-template-columns:auto 1fr;gap:3vmin;align-items:center}
   .emblem{
-    width:15vmin;height:15vmin;border-radius:50%;
+    width:11.5vmin;height:11.5vmin;border-radius:50%;
     display:flex;align-items:center;justify-content:center;
     background:radial-gradient(circle at 50% 40%,#2a1d52,#0c0a1c 70%);
     border:0.5vmin solid #2c2150;
@@ -57,7 +57,7 @@
     content:"";position:absolute;inset:1.2vmin;border-radius:50%;
     border:0.25vmin solid rgba(170,130,255,.45);
   }
-  .emblem span{font-size:5.6vmin;font-weight:800;color:#d8c7ff;text-shadow:0 0 2vmin rgba(160,110,255,.8)}
+  .emblem span{font-size:4.6vmin;font-weight:800;color:#d8c7ff;text-shadow:0 0 2vmin rgba(160,110,255,.8)}
   .rank-name{font-size:4.2vmin;font-weight:800;color:var(--pur-bright);line-height:1;letter-spacing:.1vmin}
   .rank-sub{font-size:2vmin;font-weight:700;letter-spacing:.2vmin;margin-top:1vmin}
   .rank-next{font-size:1.7vmin;letter-spacing:.12vmin;margin-top:.6vmin}
@@ -81,14 +81,14 @@
   /* ── CLIMAX ───────────────────────────────── */
   .climax{display:grid;grid-template-columns:auto auto 1fr;gap:3vmin;align-items:center}
   .gauge{
-    width:13vmin;height:13vmin;border-radius:50%;position:relative;
+    width:10vmin;height:10vmin;border-radius:50%;position:relative;
     background:conic-gradient(var(--pur) calc(var(--p)*1%),var(--track) 0);
-    -webkit-mask:radial-gradient(circle,transparent 4.6vmin,#000 4.7vmin);
-            mask:radial-gradient(circle,transparent 4.6vmin,#000 4.7vmin);
+    -webkit-mask:radial-gradient(circle,transparent 3.5vmin,#000 3.6vmin);
+            mask:radial-gradient(circle,transparent 3.5vmin,#000 3.6vmin);
     filter:drop-shadow(0 0 1.5vmin rgba(160,110,255,.5));
   }
   .gauge-core{
-    position:absolute;inset:2.2vmin;border-radius:50%;
+    position:absolute;inset:1.8vmin;border-radius:50%;
     display:flex;align-items:center;justify-content:center;
     background:radial-gradient(circle,#241842,#0d0a1e);
     font-size:3.4vmin;
@@ -99,7 +99,7 @@
 
   /* ── STATS GRID ───────────────────────────── */
   .cols{display:grid;grid-template-columns:1fr 1fr;gap:1.4vmin}
-  .stat{display:flex;align-items:center;gap:1.8vmin;margin:1.2vmin 0}
+  .stat{display:flex;align-items:center;gap:1.8vmin;margin:0.8vmin 0}
   .stat svg{width:3.4vmin;height:3.4vmin;stroke:var(--pur);fill:none;stroke-width:1.6;flex:none}
   .stat .k{font-size:1.5vmin;letter-spacing:.18vmin;color:var(--muted);text-transform:uppercase}
   .stat .v{font-size:2.6vmin;font-weight:800;color:#fff}
