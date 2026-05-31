@@ -236,8 +236,8 @@ function render(d){
   var pg=+d.pg, lb=+d.lb, lt=+d.lt, cl=+d.cl;
   var dispLvl = pr*10 + lv;
 
-  // RANK badge: prestige numeral if prestiged, else rank numeral
-  document.getElementById("badge").textContent = pr>0 ? roman(pr) : roman(ti+1);
+  // Emblem shows current PRESTIGE (roman; "0" until first prestige)
+  document.getElementById("badge").textContent = roman(pr);
   document.getElementById("rankName").textContent = (d.ct||"").toUpperCase();
   document.getElementById("rankSub").textContent  = "RANK " + roman(ti+1);
   document.getElementById("rankNext").textContent =
