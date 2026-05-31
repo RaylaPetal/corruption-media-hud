@@ -244,6 +244,8 @@ var ROMAN = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
 var state = null;       // last parsed payload
 var clockOffset = 0;    // serverNow - clientNow (seconds)
 var lslUrl = "";        // HUD script URL to ping on click (minimize toggle)
+var mini = false;       // current view state
+var lastClick = 0;      // debounce guard
 
 function roman(n){ if(n>=1 && n<=10) return ROMAN[n-1]; return ""+n; }
 function commas(n){ return Number(n).toLocaleString("en-US"); }
@@ -265,8 +267,9 @@ function render(d){
   document.getElementById("badge").textContent = roman(pr);
   document.getElementById("miniBadge").textContent = roman(pr);
 
-  // Collapsed/mini mode (set by the HUD script on click)
-  document.body.classList.toggle("mini", (+d.m) === 1);
+  // Collapsed/mini mode — LSL is the source of truth, sync our view to it
+  mini = (+d.m) === 1;
+  document.body.classList.toggle("mini", mini);
   if (d.u) lslUrl = d.u;   // URL to ping for minimize toggle
   document.getElementById("rankName").textContent = (d.ct||"").toUpperCase();
   document.getElementById("rankSub").textContent  = "RANK " + roman(ti+1);
@@ -324,13 +327,15 @@ function loadHash(){
   }catch(e){}
 }
 
-// Clicking anywhere toggles minimize. Flip the view INSTANTLY (optimistic) and
-// ping the LSL script to resize the prim; the next broadcast reaffirms the state.
-// no-cors: we only need to deliver the request cross-origin, not read the reply.
+// Click toggles minimize. We send the EXPLICIT desired state (not "toggle") so
+// duplicate/echoed events can't flip-flop. Debounced to ignore rapid re-fires.
 document.addEventListener("click", function(){
-  if(!lslUrl) return;
-  document.body.classList.toggle("mini");
-  fetch(lslUrl, {mode:"no-cors", cache:"no-store"});
+  var now = Date.now();
+  if(!lslUrl || now - lastClick < 600) return;
+  lastClick = now;
+  mini = !mini;
+  document.body.classList.toggle("mini", mini);   // optimistic; LSL confirms
+  fetch(lslUrl + "?m=" + (mini ? "1" : "0"), {mode:"no-cors", cache:"no-store"});
 });
 
 window.addEventListener("hashchange", loadHash);
