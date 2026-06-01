@@ -134,8 +134,8 @@
   .goal-row b{color:var(--pur-bright);font-weight:700;font-variant-numeric:tabular-nums}
 
   /* ── ACHIEVEMENTS ──────────────────────────── */
-  .achs{display:flex;gap:1vmin;justify-content:space-between}
-  .ach{flex:1;text-align:center;opacity:.30;transition:opacity .3s}
+  .achs{display:flex;flex-wrap:wrap;gap:1.4vmin 1vmin;justify-content:space-between}
+  .ach{flex:1 1 21%;min-width:0;text-align:center;opacity:.30;transition:opacity .3s}
   .ach.on{opacity:1}
   .ach .ico{font-size:3vmin;line-height:1;filter:grayscale(1)}
   .ach.on .ico{filter:none}
@@ -235,7 +235,7 @@
 
   <!-- PROGRESS (goals + achievements) -->
   <div class="panel">
-    <div class="ttl">Progress&nbsp;&nbsp;<span class="muted" id="achCount" style="font-size:1.3vmin;letter-spacing:.1vmin">0/5</span></div>
+    <div class="ttl">Progress&nbsp;&nbsp;<span class="muted" id="achCount" style="font-size:1.3vmin;letter-spacing:.1vmin">0/8</span></div>
     <div class="goal-row"><span>Daily XP</span><b id="goalDailyText">0 / 3000</b></div>
     <div class="bar"><i id="goalDailyFill" style="width:0%"></i></div>
     <div class="goal-row" style="margin-top:1vmin"><span>Weekly XP</span><b id="goalWeekText">0 / 10000</b></div>
@@ -348,11 +348,14 @@ function renderGoals(d){
 
 // ── Achievements (Core is the source of truth; we just display the bitfield) ──
 var ACHS = [
-  {bit:1,  ico:"💦", nm:"First Creampie"},
-  {bit:2,  ico:"🕳️", nm:"All Holes"},
-  {bit:4,  ico:"👁", nm:"Exhibitionist"},
-  {bit:8,  ico:"🏆", nm:"Town Toy"},
-  {bit:16, ico:"⭐", nm:"Head to Toe"}
+  {bit:1,   ico:"💦", nm:"First Creampie"},
+  {bit:2,   ico:"🕳️", nm:"All Holes"},
+  {bit:4,   ico:"👁", nm:"Exhibitionist"},
+  {bit:8,   ico:"🏆", nm:"Town Toy"},
+  {bit:16,  ico:"⭐", nm:"Head to Toe"},
+  {bit:32,  ico:"♛", nm:"First Prestige"},
+  {bit:64,  ico:"🔥", nm:"Prestige V"},
+  {bit:128, ico:"👑", nm:"Max Prestige"}
 ];
 var lastAch = -1;
 function buildAchs(){
