@@ -314,6 +314,7 @@
 // face/window aspect. Measuring the real height means content can grow without
 // ever being cut. On a ~3:4 face the stretch is near-uniform (no distortion).
 var DESIGN_W = 600;   // keep in sync with .hud width
+var gEp = "";         // LSL endpoint (from data hash) used to toggle minimize
 function fitHud(){
   var hud = document.querySelector(".hud");
   if (!hud) return;
@@ -385,7 +386,8 @@ function render(d){
   document.getElementById("miniRing").style.setProperty("--mp", lvProg);
   document.getElementById("miniLv").textContent = dispLvl;
 
-  // View is driven by the LSL (it owns the prim resize): m=1 → minimized circle
+  // View is driven by the LSL (it owns the prim resize): m=1 → minimized circle.
+  if (d.ep) gEp = d.ep;                                   // endpoint to toggle minimize
   document.documentElement.classList.toggle("min", String(d.m) === "1");
 
   // CLIMAX
@@ -493,8 +495,18 @@ window.addEventListener("hashchange", loadHash);
 setInterval(tickClocks, 1000);
 loadHash();
 
-// Minimize is owned by the LSL (it shrinks the prim and sends the `m` flag in
-// the data hash, which render() applies). Nothing to handle here.
+// ── Click to minimize / restore ──────────────────────────────────────────
+// Owner clicks reach the page. Toggle the view instantly for feedback, and ask
+// the LSL (via its endpoint) to resize the prim. The LSL then re-pushes the `m`
+// flag, which render() applies — so if the request fails, the view self-corrects.
+function onHudClick(){
+  if (!gEp) return;                                       // endpoint not ready yet
+  var on = !document.documentElement.classList.contains("min");
+  document.documentElement.classList.toggle("min", on);   // instant feedback
+  fitHud();
+  try { fetch(gEp + "?m=" + (on ? 1 : 0), { mode: "no-cors" }); } catch(e){}
+}
+window.addEventListener("click", onHudClick);
 fitHud();
 </script>
 </body>
