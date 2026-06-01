@@ -348,12 +348,32 @@ var TITLES = ["Innocent One","Curious Kitten","Naughty Girl","Slutty","Filthy Sl
               "Cum Slut","Depraved Whore","Cock Addict","Mindless Fucktoy","Cum Dumpster"];
 var ROMAN = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
 
+var PRESTIGE_TITLES = [
+  "Eternal Cumslut",
+  "Legendary Whore",
+  "Goddess of Filth",
+  "Immortal Cumdump"
+];
+
+var PRESTIGE_TITLE_REQ = [1, 3, 6, 10];
+
 var state = null;       // last parsed payload
 var clockOffset = 0;    // serverNow - clientNow (seconds)
 
 function roman(n){ if(n>=1 && n<=10) return ROMAN[n-1]; return ""+n; }
 function commas(n){ return Number(n).toLocaleString("en-US"); }
 function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+
+function getPrestigeTitle(pr){
+  var title = "";
+
+  for(var i = 0; i < PRESTIGE_TITLE_REQ.length; i++){
+    if(pr >= PRESTIGE_TITLE_REQ[i])
+      title = PRESTIGE_TITLES[i];
+  }
+
+  return title;
+}
 
 function fmtClock(secs){
   if(secs<0) secs=0;
@@ -366,12 +386,17 @@ function render(d){
   var xp=+d.xp, lv=+d.lv, pr=+d.pr, ti=+d.ti;
   var pg=+d.pg, lb=+d.lb, lt=+d.lt, cl=+d.cl;
   var dispLvl = pr*10 + lv;
+  var pr = +d.pr;
+  var prestigeTitle = getPrestigeTitle(pr);
 
   // Emblem shows current PRESTIGE (roman; "0" until first prestige)
   document.getElementById("badge").textContent = roman(pr);
 
 
-  document.getElementById("rankName").textContent = (d.ct||"").toUpperCase();
+  document.getElementById("rankName").textContent =
+    prestigeTitle
+      ? prestigeTitle.toUpperCase()
+      : (d.ct || "").toUpperCase();
   document.getElementById("rankSub").textContent  = "RANK " + roman(ti+1);
   document.getElementById("rankNext").textContent =
      d.nt ? ("NEXT RANK: " + roman(ti+2) + " - " + d.nt.toUpperCase()) : "MAX RANK REACHED";
