@@ -425,22 +425,24 @@ function loadHash(){
   }catch(e){}
 }
 
-document.addEventListener("click", function(){
+document.addEventListener("click", function() {
 
-    var now = Date.now();
+    console.log("CLICK");
+    console.log("URL:", lslUrl);
 
     if(!lslUrl)
+    {
+        console.log("NO URL YET");
         return;
+    }
 
-    if(now - lastClick < 600)
-        return;
-
-    lastClick = now;
-
-    fetch(lslUrl,{
-        mode:"no-cors",
-        cache:"no-store"
-    });
+    fetch(lslUrl, {
+        method: "GET",
+        mode: "no-cors",
+        cache: "no-store"
+    })
+    .then(() => console.log("FETCH SENT"))
+    .catch(err => console.log("FETCH ERROR", err));
 });
 
 buildAchs();
