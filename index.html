@@ -23,7 +23,7 @@
   html,body{width:100%;height:100%;overflow:hidden}
   body{
     display:flex;align-items:center;justify-content:center;
-    background:#000;
+    background:var(--bg);
     font-family:"Segoe UI",Roboto,Arial,sans-serif;
     color:var(--txt);
     -webkit-font-smoothing:antialiased;
@@ -32,10 +32,16 @@
      prim face) so content never clips. Internals size to the card via
      container units (cqmin). Make the prim face ~3:4 for a flush fit;
      other shapes just get background bars. */
+  /* A fixed 3:4 card that SCALES TO FIT whatever viewport it lands in, so it
+     never clips — not in Live Server (landscape window) nor in-world. Any
+     leftover space is the HUD's own bg colour (blends in, not black bars).
+     Make the prim face ~3:4 (e.g. 0.45 x 0.60) so there's no leftover at all.
+     Internals size to the card via container units (cqmin). */
   .hud{
     container-type:size;
     aspect-ratio:3 / 4;
-    width:min(100vw, 75vh); height:auto; max-height:100vh;
+    width:min(100vw, 75vh);   /* 75vh = the width whose 3:4 height == 100vh */
+    height:min(133.333vw, 100vh);
     display:flex;flex-direction:column;justify-content:space-between;
     gap:1cqmin;padding:1.4cqmin;background:var(--bg);overflow:hidden;
   }
