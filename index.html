@@ -517,21 +517,14 @@ loadHash();
 
 var gClickAt = 0;
 function onHudClick(){
-  if (!gEp) return;
-
+  if (!gEp) return;                                       // endpoint not ready yet
   var now = Date.now();
-  if (now - gClickAt < 600) return;
-
+  if (now - gClickAt < 600) return;                       // debounce double-fires
   gClickAt = now;
-
   var desired = gView ? 0 : 1;
-
-  gPend = desired;
-  gPendUntil = now + 5000;
-
-  try {
-    fetch(gEp + "?m=" + desired, { mode: "no-cors" });
-  } catch(e){}
+  setMin(desired === 1);                                  // flip the view instantly
+  gPend = desired; gPendUntil = now + 5000;               // hold against stale pushes
+  try { fetch(gEp + "?m=" + desired, { mode: "no-cors" }); } catch(e){}
 }
 window.addEventListener("click", onHudClick);
 fitHud();
