@@ -27,6 +27,36 @@
     display:flex;flex-direction:column;justify-content:space-between;
     gap:1vmin;padding:1.4vmin;background:var(--bg);
     -webkit-font-smoothing:antialiased;
+  }.panel{
+  background:linear-gradient(180deg,var(--panel),var(--panel2));
+  border:1px solid var(--stroke);
+  border-radius:1.8vmin;
+  padding:1.6vmin 2.4vmin;
+  position:relative;
+  }
+  .ttl{
+    font-size:1.8vmin;
+    font-weight:700;
+    letter-spacing:.28vmin;
+    color:#cfc7ee;
+    text-transform:uppercase;
+    display:flex;
+    align-items:center;
+    gap:1vmin;
+    margin-bottom:1vmin;
+  }
+  .ttl::before{
+    content:"";
+    width:.55vmin;
+    height:2.1vmin;
+    background:var(--pur);
+    border-radius:1vmin;
+  }
+  .muted{
+    color:var(--muted);
+  }
+  .pur{
+    color:var(--pur-bright);
   }
 
   /* ── RANK ─────────────────────────────────── */
