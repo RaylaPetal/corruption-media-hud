@@ -166,21 +166,24 @@
      Lives inside .hud so it shares the scale-to-fit transform and stays round
      on a 3:4 face. .min on <html> hides the panels and shows the ring. */
   #mini{display:none}
-  .min #mini{display:flex;align-items:center;justify-content:center;height:133cqw}
+  /* Minimized: make .hud a SQUARE (600x600) so the ring is round on the square
+     minimized face. Drop padding so the square is exact. */
+  .min .hud{padding:0}
+  .min #mini{display:flex;align-items:center;justify-content:center;height:100cqw}
   .min .panel{display:none}
   .min #achToast{display:none}
-  .mini-wrap{position:relative;width:64cqw;height:64cqw}
+  .mini-wrap{position:relative;width:88cqw;height:88cqw}
   .mini-ring{position:absolute;inset:0;border-radius:50%;
     background:conic-gradient(var(--pur) calc(var(--mp,0)*1%),var(--track) 0);
-    -webkit-mask:radial-gradient(circle,transparent 25cqw,#000 26cqw);
-            mask:radial-gradient(circle,transparent 25cqw,#000 26cqw);
-    filter:drop-shadow(0 0 3cqw rgba(160,110,255,.5))}
-  .mini-core{position:absolute;inset:7cqw;border-radius:50%;
+    -webkit-mask:radial-gradient(circle,transparent 34cqw,#000 35cqw);
+            mask:radial-gradient(circle,transparent 34cqw,#000 35cqw);
+    filter:drop-shadow(0 0 4cqw rgba(160,110,255,.5))}
+  .mini-core{position:absolute;inset:11cqw;border-radius:50%;
     background:radial-gradient(circle,#241842,#0d0a1e);
     display:flex;flex-direction:column;align-items:center;justify-content:center}
-  .mini-lv{font-size:26cqw;font-weight:800;color:#fff;line-height:1}
-  .mini-lbl{font-size:4cqw;letter-spacing:.8cqw;color:var(--muted);
-    text-transform:uppercase;margin-top:1cqw}
+  .mini-lv{font-size:34cqw;font-weight:800;color:#fff;line-height:1}
+  .mini-lbl{font-size:5cqw;letter-spacing:1cqw;color:var(--muted);
+    text-transform:uppercase;margin-top:1.5cqw}
 </style>
 </head>
 <body>
@@ -315,6 +318,7 @@
 // ever being cut. On a ~3:4 face the stretch is near-uniform (no distortion).
 var DESIGN_W = 600;   // keep in sync with .hud width
 var gEp = "";         // LSL endpoint (from data hash) used to toggle minimize
+var gMin = false;     // current view, mirrored from the LSL's m flag
 function fitHud(){
   var hud = document.querySelector(".hud");
   if (!hud) return;
@@ -386,9 +390,11 @@ function render(d){
   document.getElementById("miniRing").style.setProperty("--mp", lvProg);
   document.getElementById("miniLv").textContent = dispLvl;
 
-  // View is driven by the LSL (it owns the prim resize): m=1 → minimized circle.
+  // View is driven SOLELY by the LSL's m flag (single source of truth — the LSL
+  // owns the prim size, so the page must never decide the view on its own).
   if (d.ep) gEp = d.ep;                                   // endpoint to toggle minimize
-  document.documentElement.classList.toggle("min", String(d.m) === "1");
+  gMin = (String(d.m) === "1");
+  document.documentElement.classList.toggle("min", gMin);
 
   // CLIMAX
   var pct = Math.round(clamp(cl,0,1)*100);
@@ -496,15 +502,16 @@ setInterval(tickClocks, 1000);
 loadHash();
 
 // ── Click to minimize / restore ──────────────────────────────────────────
-// Owner clicks reach the page. Toggle the view instantly for feedback, and ask
-// the LSL (via its endpoint) to resize the prim. The LSL then re-pushes the `m`
-// flag, which render() applies — so if the request fails, the view self-corrects.
+// The page does NOT change the view itself — it only asks the LSL to switch to
+// the opposite of the current (pushed) state. The LSL resizes the prim and
+// pushes the new m, and render() applies it. One authority = no flip-flop.
+var gClickAt = 0;
 function onHudClick(){
   if (!gEp) return;                                       // endpoint not ready yet
-  var on = !document.documentElement.classList.contains("min");
-  document.documentElement.classList.toggle("min", on);   // instant feedback
-  fitHud();
-  try { fetch(gEp + "?m=" + (on ? 1 : 0), { mode: "no-cors" }); } catch(e){}
+  var now = Date.now();
+  if (now - gClickAt < 600) return;                       // debounce double-fires
+  gClickAt = now;
+  try { fetch(gEp + "?m=" + (gMin ? 0 : 1), { mode: "no-cors" }); } catch(e){}
 }
 window.addEventListener("click", onHudClick);
 fitHud();
