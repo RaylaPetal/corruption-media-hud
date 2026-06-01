@@ -182,10 +182,6 @@
   .mini-lbl{font-size:4cqw;letter-spacing:.8cqw;color:var(--muted);
     text-transform:uppercase;margin-top:1cqw}
 </style>
-<script>
-  // Set minimized state BEFORE paint so the HUD never flashes the wrong view.
-  try { if (localStorage.getItem("hudMin") === "1") document.documentElement.classList.add("min"); } catch(e){}
-</script>
 </head>
 <body>
 <div class="hud">
@@ -389,6 +385,9 @@ function render(d){
   document.getElementById("miniRing").style.setProperty("--mp", lvProg);
   document.getElementById("miniLv").textContent = dispLvl;
 
+  // View is driven by the LSL (it owns the prim resize): m=1 → minimized circle
+  document.documentElement.classList.toggle("min", String(d.m) === "1");
+
   // CLIMAX
   var pct = Math.round(clamp(cl,0,1)*100);
   document.getElementById("climaxPct").textContent = pct+"%";
@@ -414,6 +413,8 @@ function render(d){
   // clock sync
   clockOffset = (+d.nw) - Math.floor(Date.now()/1000);
   tickClocks();
+
+  fitHud();   // view (full↔minimized) or content height may have changed
 }
 
 // ── Goals (server-tracked XP; targets must match Core) ─────────────────
@@ -492,15 +493,8 @@ window.addEventListener("hashchange", loadHash);
 setInterval(tickClocks, 1000);
 loadHash();
 
-// ── Click to minimize / restore ──────────────────────────────────────────
-// Owner clicks on the media reach the page; toggle the .min view and persist
-// it (so data pushes never reset it). No LSL / prim resize involved.
-function toggleMin(){
-  var on = document.documentElement.classList.toggle("min");
-  try { localStorage.setItem("hudMin", on ? "1" : "0"); } catch(e){}
-  fitHud();   // .hud height changes between views — refit
-}
-window.addEventListener("click", toggleMin);
+// Minimize is owned by the LSL (it shrinks the prim and sends the `m` flag in
+// the data hash, which render() applies). Nothing to handle here.
 fitHud();
 </script>
 </body>
