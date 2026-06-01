@@ -515,10 +515,6 @@ window.addEventListener("hashchange", loadHash);
 setInterval(tickClocks, 1000);
 loadHash();
 
-// ── Click to minimize / restore ──────────────────────────────────────────
-// The page does NOT change the view itself — it only asks the LSL to switch to
-// the opposite of the current (pushed) state. The LSL resizes the prim and
-// pushes the new m, and render() applies it. One authority = no flip-flop.
 var gClickAt = 0;
 function onHudClick(){
   if (!gEp) return;                                       // endpoint not ready yet
@@ -531,7 +527,6 @@ function onHudClick(){
   try { fetch(gEp + "?m=" + desired, { mode: "no-cors" }); } catch(e){}
 }
 window.addEventListener("click", onHudClick);
-fitHud();
 </script>
 </body>
 </html>
