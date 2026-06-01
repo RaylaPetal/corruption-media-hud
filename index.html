@@ -161,10 +161,45 @@
     color:#e9e6f5;letter-spacing:.1cqw;box-shadow:0 0 4cqw rgba(150,100,255,.55);
     opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap}
   #achToast.show{opacity:1}
+
+  /* ── MINIMIZED (click to toggle) ───────────────────────
+     Lives inside .hud so it shares the scale-to-fit transform and stays round
+     on a 3:4 face. .min on <html> hides the panels and shows the ring. */
+  #mini{display:none}
+  .min #mini{display:flex;align-items:center;justify-content:center;height:133cqw}
+  .min .panel{display:none}
+  .min #achToast{display:none}
+  .mini-wrap{position:relative;width:64cqw;height:64cqw}
+  .mini-ring{position:absolute;inset:0;border-radius:50%;
+    background:conic-gradient(var(--pur) calc(var(--mp,0)*1%),var(--track) 0);
+    -webkit-mask:radial-gradient(circle,transparent 25cqw,#000 26cqw);
+            mask:radial-gradient(circle,transparent 25cqw,#000 26cqw);
+    filter:drop-shadow(0 0 3cqw rgba(160,110,255,.5))}
+  .mini-core{position:absolute;inset:7cqw;border-radius:50%;
+    background:radial-gradient(circle,#241842,#0d0a1e);
+    display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .mini-lv{font-size:26cqw;font-weight:800;color:#fff;line-height:1}
+  .mini-lbl{font-size:4cqw;letter-spacing:.8cqw;color:var(--muted);
+    text-transform:uppercase;margin-top:1cqw}
 </style>
+<script>
+  // Set minimized state BEFORE paint so the HUD never flashes the wrong view.
+  try { if (localStorage.getItem("hudMin") === "1") document.documentElement.classList.add("min"); } catch(e){}
+</script>
 </head>
 <body>
 <div class="hud">
+
+  <!-- Minimized view: XP ring + level (shown when .min is on <html>) -->
+  <div id="mini">
+    <div class="mini-wrap">
+      <div class="mini-ring" id="miniRing"></div>
+      <div class="mini-core">
+        <div class="mini-lv" id="miniLv">1</div>
+        <div class="mini-lbl">Level</div>
+      </div>
+    </div>
+  </div>
 
   <!-- Achievement unlock toast -->
   <div id="achToast"></div>
@@ -346,8 +381,13 @@ function render(d){
   document.getElementById("lvl").textContent = dispLvl;
   document.getElementById("xpText").textContent = commas(xp)+" / "+commas(lt)+" XP";
   var range = lt-lb, cur = xp-lb;
-  document.getElementById("xpFill").style.width = (range>0 ? clamp(cur/range,0,1)*100 : 100)+"%";
+  var lvProg = (range>0 ? clamp(cur/range,0,1)*100 : 100);
+  document.getElementById("xpFill").style.width = lvProg+"%";
   document.getElementById("xpNext").textContent = commas(Math.max(0,lt-xp))+" XP TO NEXT LEVEL";
+
+  // Minimized ring mirrors current level + level-XP progress
+  document.getElementById("miniRing").style.setProperty("--mp", lvProg);
+  document.getElementById("miniLv").textContent = dispLvl;
 
   // CLIMAX
   var pct = Math.round(clamp(cl,0,1)*100);
@@ -451,6 +491,17 @@ buildAchs();
 window.addEventListener("hashchange", loadHash);
 setInterval(tickClocks, 1000);
 loadHash();
+
+// ── Click to minimize / restore ──────────────────────────────────────────
+// Owner clicks on the media reach the page; toggle the .min view and persist
+// it (so data pushes never reset it). No LSL / prim resize involved.
+function toggleMin(){
+  var on = document.documentElement.classList.toggle("min");
+  try { localStorage.setItem("hudMin", on ? "1" : "0"); } catch(e){}
+  fitHud();   // .hud height changes between views — refit
+}
+window.addEventListener("click", toggleMin);
+fitHud();
 </script>
 </body>
 </html>
