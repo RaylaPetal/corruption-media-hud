@@ -131,6 +131,28 @@
     border:1.2vmin solid rgba(170,130,255,.5)}
   .mini-emblem span{font-size:38vmin;font-weight:800;color:#d8c7ff;
     text-shadow:0 0 8vmin rgba(160,110,255,.85)}
+
+  /* ── GOALS ─────────────────────────────────── */
+  .goal-row{display:flex;justify-content:space-between;align-items:baseline;
+    font-size:1.5vmin;letter-spacing:.12vmin;color:var(--muted);
+    text-transform:uppercase;margin-bottom:.6vmin}
+  .goal-row b{color:var(--pur-bright);font-weight:700;font-variant-numeric:tabular-nums}
+
+  /* ── ACHIEVEMENTS ──────────────────────────── */
+  .achs{display:flex;gap:1vmin;justify-content:space-between}
+  .ach{flex:1;text-align:center;opacity:.30;transition:opacity .3s}
+  .ach.on{opacity:1}
+  .ach .ico{font-size:3vmin;line-height:1;filter:grayscale(1)}
+  .ach.on .ico{filter:none}
+  .ach .nm{font-size:1.05vmin;letter-spacing:.04vmin;color:var(--muted);
+    text-transform:uppercase;margin-top:.4vmin;line-height:1.1}
+  .ach.on .nm{color:#cfc7ee}
+  #achToast{position:fixed;left:50%;top:5vmin;transform:translateX(-50%);
+    background:linear-gradient(180deg,#2a1d52,#140e2b);border:1px solid var(--stroke2);
+    border-radius:1.4vmin;padding:1.3vmin 2.6vmin;font-size:1.9vmin;font-weight:700;
+    color:#e9e6f5;letter-spacing:.1vmin;box-shadow:0 0 4vmin rgba(150,100,255,.55);
+    opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap}
+  #achToast.show{opacity:1}
 </style>
 <script>
 // Decide mini/full BEFORE the body paints, from the page's own saved state,
@@ -147,6 +169,9 @@
 
   <!-- MINI (collapsed) button -->
   <div id="miniView"><div class="mini-emblem"><span id="miniBadge">0</span></div></div>
+
+  <!-- Achievement unlock toast -->
+  <div id="achToast"></div>
 
   <!-- CORRUPTION RANK -->
   <div class="panel">
@@ -203,32 +228,37 @@
     </div>
   </div>
 
-  <!-- TOTAL / SESSION -->
+  <!-- DEBAUCHERY -->
   <div class="panel">
+    <div class="ttl">Debauchery</div>
     <div class="cols">
-      <div>
-        <div class="ttl">Total</div>
-        <div class="stat">
-          <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17" cy="8.5" r="2.6"/><path d="M15.5 14.2c2.6.2 5 2.1 5 4.8"/></svg>
-          <div><div class="k">Partners</div><div class="v" id="totPart">0</div></div>
-        </div>
-        <div class="stat">
-          <svg viewBox="0 0 24 24"><path d="M4 4l9 9M4 8V4h4M20 4l-9 9M20 8V4h-4M5 20l5-5M19 20l-5-5"/></svg>
-          <div><div class="k">Loads Received</div><div class="v" id="totHits">0</div></div>
-        </div>
+      <div class="stat">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17" cy="8.5" r="2.6"/><path d="M15.5 14.2c2.6.2 5 2.1 5 4.8"/></svg>
+        <div><div class="k">Partners</div><div class="v" id="totPart">0</div></div>
       </div>
-      <div style="border-left:1px solid var(--stroke);padding-left:3vmin">
-        <div class="ttl">Session</div>
-        <div class="stat">
-          <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17" cy="8.5" r="2.6"/><path d="M15.5 14.2c2.6.2 5 2.1 5 4.8"/></svg>
-          <div><div class="k">Partners</div><div class="v" id="sesPart">0</div></div>
-        </div>
-        <div class="stat">
-          <svg viewBox="0 0 24 24"><path d="M4 4l9 9M4 8V4h4M20 4l-9 9M20 8V4h-4M5 20l5-5M19 20l-5-5"/></svg>
-          <div><div class="k">Loads Received</div><div class="v" id="sesHits">0</div></div>
-        </div>
+      <div class="stat">
+        <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg>
+        <div><div class="k">Favorite Hole</div><div class="v" id="favHole">—</div></div>
+      </div>
+      <div class="stat">
+        <svg viewBox="0 0 24 24"><path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z"/></svg>
+        <div><div class="k">Bred</div><div class="v" id="breedRate">0%</div></div>
+      </div>
+      <div class="stat">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17" cy="8.5" r="2.6"/><path d="M15.5 14.2c2.6.2 5 2.1 5 4.8"/></svg>
+        <div><div class="k">Session</div><div class="v" id="sesPart">0</div></div>
       </div>
     </div>
+  </div>
+
+  <!-- PROGRESS (goals + achievements) -->
+  <div class="panel">
+    <div class="ttl">Progress&nbsp;&nbsp;<span class="muted" id="achCount" style="font-size:1.3vmin;letter-spacing:.1vmin">0/5</span></div>
+    <div class="goal-row"><span>Daily XP</span><b id="goalDailyText">0 / 3000</b></div>
+    <div class="bar"><i id="goalDailyFill" style="width:0%"></i></div>
+    <div class="goal-row" style="margin-top:1vmin"><span>Weekly XP</span><b id="goalWeekText">0 / 10000</b></div>
+    <div class="bar"><i id="goalWeekFill" style="width:0%"></i></div>
+    <div class="achs" id="achs" style="margin-top:1.6vmin"></div>
   </div>
 
   <!-- TIMERS -->
@@ -306,15 +336,75 @@ function render(d){
   document.getElementById("gauge").style.setProperty("--p", pct);
   document.getElementById("climaxFill").style.width = pct+"%";
 
-  // STATS
+  // DEBAUCHERY
   document.getElementById("totPart").textContent = commas(d.tp);
-  document.getElementById("totHits").textContent = commas(d.th);
   document.getElementById("sesPart").textContent = commas(d.sp);
-  document.getElementById("sesHits").textContent = commas(d.sh);
+  var zp=+d.zp, za=+d.za, zf=+d.zf;
+  var fav = "—";
+  if(zp+za+zf > 0){
+    if(zp>=za && zp>=zf) fav="Pussy";
+    else if(za>=zf)      fav="Ass";
+    else                 fav="Throat";
+  }
+  document.getElementById("favHole").textContent = fav;
+  document.getElementById("breedRate").textContent = (zp>0 ? Math.round((+d.cr)/zp*100) : 0) + "%";
+
+  renderGoals(d);
+  renderAch(d);
 
   // clock sync
   clockOffset = (+d.nw) - Math.floor(Date.now()/1000);
   tickClocks();
+}
+
+// ── Goals (server-tracked XP; targets must match Core) ─────────────────
+var DAILY_GOAL = 2000, WEEKLY_GOAL = 10000;
+function setGoal(id, val, goal){
+  document.getElementById(id+"Fill").style.width = clamp(val/goal,0,1)*100+"%";
+  document.getElementById(id+"Text").textContent =
+    (val>=goal) ? "✓ Complete" : (commas(Math.min(val,goal))+" / "+commas(goal));
+}
+function renderGoals(d){
+  setGoal("goalDaily", +d.dx, DAILY_GOAL);
+  setGoal("goalWeek",  +d.wx, WEEKLY_GOAL);
+}
+
+// ── Achievements (Core is the source of truth; we just display the bitfield) ──
+var ACHS = [
+  {bit:1,  ico:"💦", nm:"First Creampie"},
+  {bit:2,  ico:"🕳️", nm:"All Holes"},
+  {bit:4,  ico:"👁", nm:"Exhibitionist"},
+  {bit:8,  ico:"🏆", nm:"Town Toy"},
+  {bit:16, ico:"⭐", nm:"Head to Toe"}
+];
+var lastAch = -1;
+function buildAchs(){
+  var h="";
+  for(var i=0;i<ACHS.length;i++)
+    h+='<div class="ach" id="ach_'+ACHS[i].bit+'"><div class="ico">'+ACHS[i].ico+'</div><div class="nm">'+ACHS[i].nm+'</div></div>';
+  document.getElementById("achs").innerHTML=h;
+}
+function renderAch(d){
+  var ac=+d.ac||0, count=0;
+  for(var i=0;i<ACHS.length;i++){
+    var on=(ac & ACHS[i].bit)!==0;
+    document.getElementById("ach_"+ACHS[i].bit).classList.toggle("on", on);
+    if(on) count++;
+    // toast only for bits newly set since the last payload (Core already announces too)
+    if(on && lastAch>=0 && (lastAch & ACHS[i].bit)===0) toast("Unlocked: "+ACHS[i].nm);
+  }
+  document.getElementById("achCount").textContent = count+"/"+ACHS.length;
+  lastAch = ac;
+}
+
+// ── Toast ──────────────────────────────────────────────
+var toastT=0;
+function toast(msg){
+  var t=document.getElementById("achToast");
+  t.textContent="🏆 "+msg;
+  t.classList.add("show");
+  clearTimeout(toastT);
+  toastT=setTimeout(function(){t.classList.remove("show");}, 4000);
 }
 
 function tickClocks(){
@@ -352,6 +442,7 @@ document.addEventListener("click", function(){
 try{ mini = localStorage.getItem("hudMini") === "1"; }catch(e){}
 document.documentElement.classList.toggle("mini", mini);
 
+buildAchs();
 window.addEventListener("hashchange", loadHash);
 setInterval(tickClocks, 1000);
 loadHash();
