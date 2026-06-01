@@ -22,53 +22,48 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{width:100%;height:100%;overflow:hidden}
   body{
-    display:flex;align-items:center;justify-content:center;
     background:var(--bg);
     font-family:"Segoe UI",Roboto,Arial,sans-serif;
     color:var(--txt);
     -webkit-font-smoothing:antialiased;
   }
-  /* Fixed 3:4 card that letterboxes to fit ANY viewport (browser preview or
-     prim face) so content never clips. Internals size to the card via
-     container units (cqmin). Make the prim face ~3:4 for a flush fit;
-     other shapes just get background bars. */
-  /* A fixed 3:4 card that SCALES TO FIT whatever viewport it lands in, so it
-     never clips — not in Live Server (landscape window) nor in-world. Any
-     leftover space is the HUD's own bg colour (blends in, not black bars).
-     Make the prim face ~3:4 (e.g. 0.45 x 0.60) so there's no leftover at all.
-     Internals size to the card via container units (cqmin). */
+  /* The HUD is laid out at a fixed design size (DESIGN_W x DESIGN_H, 3:4) and
+     then STRETCH-scaled by JS to exactly fill the viewport — so it always fills
+     edge-to-edge (no borders) and never clips, on any face/window aspect. On a
+     3:4 face the stretch is uniform (no distortion); on other shapes it just
+     stretches to fill, which is what we want. */
   .hud{
-    container-type:size;
-    aspect-ratio:3 / 4;
-    width:min(100vw, 75vh);   /* 75vh = the width whose 3:4 height == 100vh */
-    height:min(133.333vw, 100vh);
-    display:flex;flex-direction:column;justify-content:space-between;
-    gap:1cqmin;padding:1.4cqmin;background:var(--bg);overflow:hidden;
+    position:absolute; top:0; left:0;
+    width:600px;                        /* DESIGN_W — keep in sync with JS */
+    transform-origin:0 0;
+    container-type:inline-size;         /* cqw = 1% of this 600px width */
+    display:flex;flex-direction:column;
+    gap:1.6cqw;padding:1.4cqw;background:var(--bg);
   }
   .panel{
   background:linear-gradient(180deg,var(--panel),var(--panel2));
   border:1px solid var(--stroke);
-  border-radius:1.8cqmin;
-  padding:1.6cqmin 2.4cqmin;
+  border-radius:1.8cqw;
+  padding:1.6cqw 2.4cqw;
   position:relative;
   }
   .ttl{
-    font-size:1.8cqmin;
+    font-size:1.8cqw;
     font-weight:700;
-    letter-spacing:.28cqmin;
+    letter-spacing:.28cqw;
     color:#cfc7ee;
     text-transform:uppercase;
     display:flex;
     align-items:center;
-    gap:1cqmin;
-    margin-bottom:1cqmin;
+    gap:1cqw;
+    margin-bottom:1cqw;
   }
   .ttl::before{
     content:"";
-    width:.55cqmin;
-    height:2.1cqmin;
+    width:.55cqw;
+    height:2.1cqw;
     background:var(--pur);
-    border-radius:1cqmin;
+    border-radius:1cqw;
   }
   .muted{
     color:var(--muted);
@@ -78,92 +73,92 @@
   }
 
   /* ── RANK ─────────────────────────────────── */
-  .rank{display:grid;grid-template-columns:auto 1fr;gap:3cqmin;align-items:center}
+  .rank{display:grid;grid-template-columns:auto 1fr;gap:3cqw;align-items:center}
   .emblem{
-    width:11.5cqmin;height:11.5cqmin;border-radius:50%;
+    width:11.5cqw;height:11.5cqw;border-radius:50%;
     display:flex;align-items:center;justify-content:center;
     background:radial-gradient(circle at 50% 40%,#2a1d52,#0c0a1c 70%);
-    border:0.5cqmin solid #2c2150;
-    box-shadow:0 0 4cqmin rgba(150,100,255,.35),inset 0 0 2cqmin rgba(150,100,255,.25);
+    border:0.5cqw solid #2c2150;
+    box-shadow:0 0 4cqw rgba(150,100,255,.35),inset 0 0 2cqw rgba(150,100,255,.25);
     position:relative;
   }
   .emblem::before{
-    content:"";position:absolute;inset:1.2cqmin;border-radius:50%;
-    border:0.25cqmin solid rgba(170,130,255,.45);
+    content:"";position:absolute;inset:1.2cqw;border-radius:50%;
+    border:0.25cqw solid rgba(170,130,255,.45);
   }
-  .emblem span{font-size:4.6cqmin;font-weight:800;color:#d8c7ff;text-shadow:0 0 2cqmin rgba(160,110,255,.8)}
-  .rank-name{font-size:4.2cqmin;font-weight:800;color:var(--pur-bright);line-height:1;letter-spacing:.1cqmin}
-  .rank-sub{font-size:2cqmin;font-weight:700;letter-spacing:.2cqmin;margin-top:1cqmin}
-  .rank-next{font-size:1.7cqmin;letter-spacing:.12cqmin;margin-top:.6cqmin}
-  .cp-row{display:flex;justify-content:flex-end;font-size:2cqmin;font-weight:700;margin-bottom:1cqmin}
-  .tagline{font-size:1.7cqmin;letter-spacing:.25cqmin;text-align:center;margin-top:1.2cqmin;color:#8e88a8}
+  .emblem span{font-size:4.6cqw;font-weight:800;color:#d8c7ff;text-shadow:0 0 2cqw rgba(160,110,255,.8)}
+  .rank-name{font-size:4.2cqw;font-weight:800;color:var(--pur-bright);line-height:1;letter-spacing:.1cqw}
+  .rank-sub{font-size:2cqw;font-weight:700;letter-spacing:.2cqw;margin-top:1cqw}
+  .rank-next{font-size:1.7cqw;letter-spacing:.12cqw;margin-top:.6cqw}
+  .cp-row{display:flex;justify-content:flex-end;font-size:2cqw;font-weight:700;margin-bottom:1cqw}
+  .tagline{font-size:1.7cqw;letter-spacing:.25cqw;text-align:center;margin-top:1.2cqw;color:#8e88a8}
 
   /* ── BARS ─────────────────────────────────── */
-  .bar{height:1.5cqmin;background:var(--track);border-radius:1cqmin;overflow:hidden;position:relative}
-  .bar>i{display:block;height:100%;background:var(--grad);border-radius:1cqmin;
-         box-shadow:0 0 1.6cqmin rgba(160,110,255,.6);transition:width .5s ease}
+  .bar{height:1.5cqw;background:var(--track);border-radius:1cqw;overflow:hidden;position:relative}
+  .bar>i{display:block;height:100%;background:var(--grad);border-radius:1cqw;
+         box-shadow:0 0 1.6cqw rgba(160,110,255,.6);transition:width .5s ease}
   .seg{position:absolute;top:0;bottom:0;width:1px;background:rgba(0,0,0,.55)}
 
   /* ── XP ───────────────────────────────────── */
-  .xp-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.2cqmin}
-  .lvl{display:flex;align-items:baseline;gap:1cqmin}
-  .lvl b{font-size:1.8cqmin;letter-spacing:.2cqmin;color:var(--muted)}
-  .lvl em{font-size:4.4cqmin;font-weight:800;font-style:normal;color:#fff;line-height:1}
-  .xp-val{font-size:2cqmin;font-weight:700}
-  .xp-next{text-align:center;font-size:1.6cqmin;letter-spacing:.14cqmin;margin-top:1cqmin}
+  .xp-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.2cqw}
+  .lvl{display:flex;align-items:baseline;gap:1cqw}
+  .lvl b{font-size:1.8cqw;letter-spacing:.2cqw;color:var(--muted)}
+  .lvl em{font-size:4.4cqw;font-weight:800;font-style:normal;color:#fff;line-height:1}
+  .xp-val{font-size:2cqw;font-weight:700}
+  .xp-next{text-align:center;font-size:1.6cqw;letter-spacing:.14cqw;margin-top:1cqw}
 
   /* ── CLIMAX ───────────────────────────────── */
-  .climax{display:grid;grid-template-columns:auto auto 1fr;gap:3cqmin;align-items:center}
+  .climax{display:grid;grid-template-columns:auto auto 1fr;gap:3cqw;align-items:center}
   .gauge{
-    width:10cqmin;height:10cqmin;border-radius:50%;position:relative;
+    width:10cqw;height:10cqw;border-radius:50%;position:relative;
     background:conic-gradient(var(--pur) calc(var(--p)*1%),var(--track) 0);
-    -webkit-mask:radial-gradient(circle,transparent 3.5cqmin,#000 3.6cqmin);
-            mask:radial-gradient(circle,transparent 3.5cqmin,#000 3.6cqmin);
-    filter:drop-shadow(0 0 1.5cqmin rgba(160,110,255,.5));
+    -webkit-mask:radial-gradient(circle,transparent 3.5cqw,#000 3.6cqw);
+            mask:radial-gradient(circle,transparent 3.5cqw,#000 3.6cqw);
+    filter:drop-shadow(0 0 1.5cqw rgba(160,110,255,.5));
   }
   .gauge-core{
-    position:absolute;inset:1.8cqmin;border-radius:50%;
+    position:absolute;inset:1.8cqw;border-radius:50%;
     display:flex;align-items:center;justify-content:center;
     background:radial-gradient(circle,#241842,#0d0a1e);
-    font-size:3.4cqmin;
+    font-size:3.4cqw;
   }
-  .climax-pct{font-size:4.6cqmin;font-weight:800;color:var(--pur-bright);line-height:1}
-  .climax-lbl{font-size:1.6cqmin;letter-spacing:.2cqmin;color:var(--muted)}
+  .climax-pct{font-size:4.6cqw;font-weight:800;color:var(--pur-bright);line-height:1}
+  .climax-lbl{font-size:1.6cqw;letter-spacing:.2cqw;color:var(--muted)}
   .seg-bar{position:relative}
 
   /* ── STATS GRID ───────────────────────────── */
-  .cols{display:grid;grid-template-columns:1fr 1fr;gap:1.4cqmin}
-  .stat{display:flex;align-items:center;gap:1.8cqmin;margin:0.8cqmin 0}
-  .stat svg{width:3.4cqmin;height:3.4cqmin;stroke:var(--pur);fill:none;stroke-width:1.6;flex:none}
-  .stat .k{font-size:1.5cqmin;letter-spacing:.18cqmin;color:var(--muted);text-transform:uppercase}
-  .stat .v{font-size:2.6cqmin;font-weight:800;color:#fff}
-  .divider{width:1px;background:var(--stroke);margin:0 1cqmin}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:1.4cqw}
+  .stat{display:flex;align-items:center;gap:1.8cqw;margin:0.8cqw 0}
+  .stat svg{width:3.4cqw;height:3.4cqw;stroke:var(--pur);fill:none;stroke-width:1.6;flex:none}
+  .stat .k{font-size:1.5cqw;letter-spacing:.18cqw;color:var(--muted);text-transform:uppercase}
+  .stat .v{font-size:2.6cqw;font-weight:800;color:#fff}
+  .divider{width:1px;background:var(--stroke);margin:0 1cqw}
 
-  .timers{display:grid;grid-template-columns:1fr 1fr;gap:1.4cqmin}
-  .clk{display:flex;align-items:center;gap:1.8cqmin}
-  .clk svg{width:3.6cqmin;height:3.6cqmin;stroke:var(--pur);fill:none;stroke-width:1.6;flex:none}
-  .clk .k{font-size:1.4cqmin;letter-spacing:.16cqmin;color:var(--muted);text-transform:uppercase}
-  .clk .v{font-size:2.6cqmin;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+  .timers{display:grid;grid-template-columns:1fr 1fr;gap:1.4cqw}
+  .clk{display:flex;align-items:center;gap:1.8cqw}
+  .clk svg{width:3.6cqw;height:3.6cqw;stroke:var(--pur);fill:none;stroke-width:1.6;flex:none}
+  .clk .k{font-size:1.4cqw;letter-spacing:.16cqw;color:var(--muted);text-transform:uppercase}
+  .clk .v{font-size:2.6cqw;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
 
   /* ── GOALS ─────────────────────────────────── */
   .goal-row{display:flex;justify-content:space-between;align-items:baseline;
-    font-size:1.5cqmin;letter-spacing:.12cqmin;color:var(--muted);
-    text-transform:uppercase;margin-bottom:.6cqmin}
+    font-size:1.5cqw;letter-spacing:.12cqw;color:var(--muted);
+    text-transform:uppercase;margin-bottom:.6cqw}
   .goal-row b{color:var(--pur-bright);font-weight:700;font-variant-numeric:tabular-nums}
 
   /* ── ACHIEVEMENTS ──────────────────────────── */
-  .achs{display:flex;flex-wrap:wrap;gap:1.4cqmin 1cqmin;justify-content:space-between}
+  .achs{display:flex;flex-wrap:wrap;gap:1.4cqw 1cqw;justify-content:space-between}
   .ach{flex:1 1 21%;min-width:0;text-align:center;opacity:.30;transition:opacity .3s}
   .ach.on{opacity:1}
-  .ach .ico{font-size:3cqmin;line-height:1;filter:grayscale(1)}
+  .ach .ico{font-size:3cqw;line-height:1;filter:grayscale(1)}
   .ach.on .ico{filter:none}
-  .ach .nm{font-size:1.05cqmin;letter-spacing:.04cqmin;color:var(--muted);
-    text-transform:uppercase;margin-top:.4cqmin;line-height:1.1}
+  .ach .nm{font-size:1.05cqw;letter-spacing:.04cqw;color:var(--muted);
+    text-transform:uppercase;margin-top:.4cqw;line-height:1.1}
   .ach.on .nm{color:#cfc7ee}
-  #achToast{position:fixed;left:50%;top:5cqmin;transform:translateX(-50%);
+  #achToast{position:fixed;left:50%;top:5cqw;transform:translateX(-50%);
     background:linear-gradient(180deg,#2a1d52,#140e2b);border:1px solid var(--stroke2);
-    border-radius:1.4cqmin;padding:1.3cqmin 2.6cqmin;font-size:1.9cqmin;font-weight:700;
-    color:#e9e6f5;letter-spacing:.1cqmin;box-shadow:0 0 4cqmin rgba(150,100,255,.55);
+    border-radius:1.4cqw;padding:1.3cqw 2.6cqw;font-size:1.9cqw;font-weight:700;
+    color:#e9e6f5;letter-spacing:.1cqw;box-shadow:0 0 4cqw rgba(150,100,255,.55);
     opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap}
   #achToast.show{opacity:1}
 </style>
@@ -186,7 +181,7 @@
             <div class="rank-sub pur" id="rankSub">RANK I</div>
             <div class="rank-next muted" id="rankNext">NEXT RANK: II</div>
           </div>
-          <div style="flex:1;margin-left:3cqmin;min-width:40%">
+          <div style="flex:1;margin-left:3cqw;min-width:40%">
             <div class="cp-row"><span class="pur" id="cpText">0 / 0 CP</span></div>
             <div class="bar"><i id="cpFill" style="width:0%"></i></div>
             <div class="tagline">Indulge.&nbsp;&nbsp;Descend.&nbsp;&nbsp;Become.</div>
@@ -217,12 +212,12 @@
         <div class="climax-lbl">CURRENT CLIMAX</div>
       </div>
       <div class="seg-bar">
-        <div class="bar" style="height:2cqmin"><i id="climaxFill" style="width:0%"></i>
+        <div class="bar" style="height:2cqw"><i id="climaxFill" style="width:0%"></i>
           <span class="seg" style="left:25%"></span>
           <span class="seg" style="left:50%"></span>
           <span class="seg" style="left:75%"></span>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:1.4cqmin;color:var(--muted);margin-top:.8cqmin">
+        <div style="display:flex;justify-content:space-between;font-size:1.4cqw;color:var(--muted);margin-top:.8cqw">
           <span>25%</span><span>50%</span><span>75%</span><span>100%</span>
         </div>
       </div>
@@ -254,12 +249,12 @@
 
   <!-- PROGRESS (goals + achievements) -->
   <div class="panel">
-    <div class="ttl">Progress&nbsp;&nbsp;<span class="muted" id="achCount" style="font-size:1.3cqmin;letter-spacing:.1cqmin">0/8</span></div>
+    <div class="ttl">Progress&nbsp;&nbsp;<span class="muted" id="achCount" style="font-size:1.3cqw;letter-spacing:.1cqw">0/8</span></div>
     <div class="goal-row"><span>Daily XP</span><b id="goalDailyText">0 / 3000</b></div>
     <div class="bar"><i id="goalDailyFill" style="width:0%"></i></div>
-    <div class="goal-row" style="margin-top:1cqmin"><span>Weekly XP</span><b id="goalWeekText">0 / 10000</b></div>
+    <div class="goal-row" style="margin-top:1cqw"><span>Weekly XP</span><b id="goalWeekText">0 / 10000</b></div>
     <div class="bar"><i id="goalWeekFill" style="width:0%"></i></div>
-    <div class="achs" id="achs" style="margin-top:1.6cqmin"></div>
+    <div class="achs" id="achs" style="margin-top:1.6cqw"></div>
   </div>
 
   <!-- TIMERS -->
@@ -280,6 +275,32 @@
 
 <script>
 "use strict";
+
+// ── Stretch-to-fill ──────────────────────────────────────────────────────
+// The .hud is authored at a fixed width (DESIGN_W) and flows to its natural
+// height; we then scale it (independently per axis) to EXACTLY fill the
+// viewport. Result: always edge-to-edge (no borders) and never clipped, on any
+// face/window aspect. Measuring the real height means content can grow without
+// ever being cut. On a ~3:4 face the stretch is near-uniform (no distortion).
+var DESIGN_W = 600;   // keep in sync with .hud width
+function fitHud(){
+  var hud = document.querySelector(".hud");
+  if (!hud) return;
+  var h = hud.offsetHeight || 800;            // natural design height (ignores transform)
+  hud.style.transform = "scale(" + (window.innerWidth / DESIGN_W) +
+                             "," + (window.innerHeight / h) + ")";
+}
+window.addEventListener("resize", fitHud);
+window.addEventListener("load", fitHud);
+document.addEventListener("DOMContentLoaded", fitHud);
+// Re-fit whenever the HUD's natural height changes (longer titles, etc.).
+// Transform doesn't change border-box height, so this can't loop.
+(function(){
+  var hudEl = document.querySelector(".hud");
+  if (window.ResizeObserver && hudEl) new ResizeObserver(fitHud).observe(hudEl);
+})();
+fitHud();
+
 var TITLES = ["Innocent One","Curious Kitten","Naughty Girl","Slutty","Filthy Slut",
               "Cum Slut","Depraved Whore","Cock Addict","Mindless Fucktoy","Cum Dumpster"];
 var ROMAN = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
