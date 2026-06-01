@@ -318,13 +318,20 @@
 // ever being cut. On a ~3:4 face the stretch is near-uniform (no distortion).
 var DESIGN_W = 600;   // keep in sync with .hud width
 var gEp = "";         // LSL endpoint (from data hash) used to toggle minimize
-var gMin = false;     // current view, mirrored from the LSL's m flag
+var gView = false;    // the view currently shown (minimized?)
+var gPend = -1;       // pending click target: -1 none, 0 full, 1 minimized
+var gPendUntil = 0;   // ignore stale m pushes until this time (ms)
 function fitHud(){
   var hud = document.querySelector(".hud");
   if (!hud) return;
   var h = hud.offsetHeight || 800;            // natural design height (ignores transform)
   hud.style.transform = "scale(" + (window.innerWidth / DESIGN_W) +
                              "," + (window.innerHeight / h) + ")";
+}
+function setMin(on){                          // the ONLY place that flips the view
+  gView = on;
+  document.documentElement.classList.toggle("min", on);
+  fitHud();
 }
 window.addEventListener("resize", fitHud);
 window.addEventListener("load", fitHud);
@@ -390,11 +397,18 @@ function render(d){
   document.getElementById("miniRing").style.setProperty("--mp", lvProg);
   document.getElementById("miniLv").textContent = dispLvl;
 
-  // View is driven SOLELY by the LSL's m flag (single source of truth — the LSL
-  // owns the prim size, so the page must never decide the view on its own).
+  // Minimize sync. The click flips the view optimistically (instant) and marks a
+  // pending target; we ignore stale m pushes until the LSL confirms, then m is
+  // authoritative again (so boot/relog re-sync correctly). One flip per signal.
   if (d.ep) gEp = d.ep;                                   // endpoint to toggle minimize
-  gMin = (String(d.m) === "1");
-  document.documentElement.classList.toggle("min", gMin);
+  var m = (String(d.m) === "1") ? 1 : 0;
+  if (gPend !== -1 && Date.now() < gPendUntil) {
+    if (m === gPend) { gPend = -1; setMin(m === 1); }     // LSL confirmed our click
+    // else: stale push during the gap — keep the optimistic view
+  } else {
+    gPend = -1;
+    if ((m === 1) !== gView) setMin(m === 1);             // authoritative (boot/relog)
+  }
 
   // CLIMAX
   var pct = Math.round(clamp(cl,0,1)*100);
@@ -511,7 +525,10 @@ function onHudClick(){
   var now = Date.now();
   if (now - gClickAt < 600) return;                       // debounce double-fires
   gClickAt = now;
-  try { fetch(gEp + "?m=" + (gMin ? 0 : 1), { mode: "no-cors" }); } catch(e){}
+  var desired = gView ? 0 : 1;
+  setMin(desired === 1);                                  // flip the view instantly
+  gPend = desired; gPendUntil = now + 5000;               // hold against stale pushes
+  try { fetch(gEp + "?m=" + desired, { mode: "no-cors" }); } catch(e){}
 }
 window.addEventListener("click", onHudClick);
 fitHud();
