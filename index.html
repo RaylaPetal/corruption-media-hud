@@ -28,22 +28,6 @@
     gap:1vmin;padding:1.4vmin;background:var(--bg);
     -webkit-font-smoothing:antialiased;
   }
-  /* Collapsed: transparent everywhere so only the round emblem shows */
-  html.mini{background:transparent}
-  .panel{
-    background:linear-gradient(180deg,var(--panel),var(--panel2));
-    border:1px solid var(--stroke);
-    border-radius:1.8vmin;
-    padding:1.6vmin 2.4vmin;
-    position:relative;
-  }
-  .ttl{
-    font-size:1.8vmin;font-weight:700;letter-spacing:.28vmin;color:#cfc7ee;
-    text-transform:uppercase;display:flex;align-items:center;gap:1vmin;margin-bottom:1vmin;
-  }
-  .ttl::before{content:"";width:.55vmin;height:2.1vmin;background:var(--pur);border-radius:1vmin}
-  .muted{color:var(--muted)}
-  .pur{color:var(--pur-bright)}
 
   /* ── RANK ─────────────────────────────────── */
   .rank{display:grid;grid-template-columns:auto 1fr;gap:3vmin;align-items:center}
@@ -113,25 +97,6 @@
   .clk .k{font-size:1.4vmin;letter-spacing:.16vmin;color:var(--muted);text-transform:uppercase}
   .clk .v{font-size:2.6vmin;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
 
-  /* ── MINI (collapsed) view: just the prestige circle ─────────────── */
-  #miniView{
-    position:fixed;inset:0;display:none;align-items:center;justify-content:center;
-    background:transparent;   /* transparent corners → only the circle shows */
-  }
-  html.mini #miniView{display:flex}
-  html.mini .panel{display:none}
-  .mini-emblem{
-    width:78vmin;height:78vmin;border-radius:50%;position:relative;
-    display:flex;align-items:center;justify-content:center;
-    background:radial-gradient(circle at 50% 40%,#2a1d52,#0c0a1c 70%);
-    border:3vmin solid #2c2150;
-    box-shadow:0 0 16vmin rgba(150,100,255,.5),inset 0 0 10vmin rgba(150,100,255,.3);
-  }
-  .mini-emblem::before{content:"";position:absolute;inset:6vmin;border-radius:50%;
-    border:1.2vmin solid rgba(170,130,255,.5)}
-  .mini-emblem span{font-size:38vmin;font-weight:800;color:#d8c7ff;
-    text-shadow:0 0 8vmin rgba(160,110,255,.85)}
-
   /* ── GOALS ─────────────────────────────────── */
   .goal-row{display:flex;justify-content:space-between;align-items:baseline;
     font-size:1.5vmin;letter-spacing:.12vmin;color:var(--muted);
@@ -156,9 +121,6 @@
 </style>
 </head>
 <body>
-
-  <!-- MINI (collapsed) button -->
-  <div id="miniView"><div class="mini-emblem"><span id="miniBadge">0</span></div></div>
 
   <!-- Achievement unlock toast -->
   <div id="achToast"></div>
@@ -273,9 +235,6 @@ var ROMAN = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
 
 var state = null;       // last parsed payload
 var clockOffset = 0;    // serverNow - clientNow (seconds)
-var lslUrl = "";        // HUD script URL to ping on click (minimize toggle)
-var mini = false;       // current view state
-var lastClick = 0;      // debounce guard
 
 function roman(n){ if(n>=1 && n<=10) return ROMAN[n-1]; return ""+n; }
 function commas(n){ return Number(n).toLocaleString("en-US"); }
@@ -295,20 +254,8 @@ function render(d){
 
   // Emblem shows current PRESTIGE (roman; "0" until first prestige)
   document.getElementById("badge").textContent = roman(pr);
-  document.getElementById("miniBadge").textContent = roman(pr);
 
-  if (d.u)
-      lslUrl = d.u;
 
-  if (typeof d.m !== "undefined")
-  {
-      mini = (+d.m) === 1;
-
-      document.documentElement.classList.toggle(
-          "mini",
-          mini
-      );
-  }
   document.getElementById("rankName").textContent = (d.ct||"").toUpperCase();
   document.getElementById("rankSub").textContent  = "RANK " + roman(ti+1);
   document.getElementById("rankNext").textContent =
@@ -424,26 +371,6 @@ function loadHash(){
     render(state);
   }catch(e){}
 }
-
-document.addEventListener("click", function() {
-
-    console.log("CLICK");
-    console.log("URL:", lslUrl);
-
-    if(!lslUrl)
-    {
-        console.log("NO URL YET");
-        return;
-    }
-
-    fetch(lslUrl, {
-        method: "GET",
-        mode: "no-cors",
-        cache: "no-store"
-    })
-    .then(() => console.log("FETCH SENT"))
-    .catch(err => console.log("FETCH ERROR", err));
-});
 
 buildAchs();
 window.addEventListener("hashchange", loadHash);
