@@ -154,16 +154,6 @@
     opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap}
   #achToast.show{opacity:1}
 </style>
-<script>
-// Decide mini/full BEFORE the body paints, from the page's own saved state,
-// so a reload never flashes the wrong layout. The page owns the view; LSL only
-// resizes the prim.
-(function(){
-  var m = "0";
-  try{ m = localStorage.getItem("hudMini") || "0"; }catch(e){}
-  if(m === "1") document.documentElement.className = "mini";
-})();
-</script>
 </head>
 <body>
 
@@ -307,8 +297,18 @@ function render(d){
   document.getElementById("badge").textContent = roman(pr);
   document.getElementById("miniBadge").textContent = roman(pr);
 
-  // View (mini/full) is owned by the page (localStorage); stat pushes don't touch it.
-  if (d.u) lslUrl = d.u;   // URL to ping for minimize toggle
+  if (d.u)
+      lslUrl = d.u;
+
+  if (typeof d.m !== "undefined")
+  {
+      mini = (+d.m) === 1;
+
+      document.documentElement.classList.toggle(
+          "mini",
+          mini
+      );
+  }
   document.getElementById("rankName").textContent = (d.ct||"").toUpperCase();
   document.getElementById("rankSub").textContent  = "RANK " + roman(ti+1);
   document.getElementById("rankNext").textContent =
@@ -425,22 +425,23 @@ function loadHash(){
   }catch(e){}
 }
 
-// Click toggles minimize: flip the view optimistically and ping the script once.
-// Debounced so a doubled click can't double-fire; LSL reconciles via the next push.
 document.addEventListener("click", function(){
-  var now = Date.now();
-  if(!lslUrl || now - lastClick < 600) return;
-  lastClick = now;
-  mini = !mini;
-  try{ localStorage.setItem("hudMini", mini ? "1" : "0"); }catch(e){}
-  document.documentElement.classList.toggle("mini", mini);   // instant, no reload
-  fetch(lslUrl, {mode:"no-cors", cache:"no-store"});         // ask LSL to resize
-});
 
-// Sync the in-memory view flag with the saved state so the first click flips
-// from the correct side (the <head> script already set the class pre-paint).
-try{ mini = localStorage.getItem("hudMini") === "1"; }catch(e){}
-document.documentElement.classList.toggle("mini", mini);
+    var now = Date.now();
+
+    if(!lslUrl)
+        return;
+
+    if(now - lastClick < 600)
+        return;
+
+    lastClick = now;
+
+    fetch(lslUrl,{
+        mode:"no-cors",
+        cache:"no-store"
+    });
+});
 
 buildAchs();
 window.addEventListener("hashchange", loadHash);
