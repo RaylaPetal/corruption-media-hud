@@ -22,35 +22,47 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{width:100%;height:100%;overflow:hidden}
   body{
+    display:flex;align-items:center;justify-content:center;
+    background:#000;
     font-family:"Segoe UI",Roboto,Arial,sans-serif;
     color:var(--txt);
-    display:flex;flex-direction:column;justify-content:space-between;
-    gap:1vmin;padding:1.4vmin;background:var(--bg);
     -webkit-font-smoothing:antialiased;
-  }.panel{
+  }
+  /* Fixed 3:4 card that letterboxes to fit ANY viewport (browser preview or
+     prim face) so content never clips. Internals size to the card via
+     container units (cqmin). Make the prim face ~3:4 for a flush fit;
+     other shapes just get background bars. */
+  .hud{
+    container-type:size;
+    aspect-ratio:3 / 4;
+    width:min(100vw, 75vh); height:auto; max-height:100vh;
+    display:flex;flex-direction:column;justify-content:space-between;
+    gap:1cqmin;padding:1.4cqmin;background:var(--bg);overflow:hidden;
+  }
+  .panel{
   background:linear-gradient(180deg,var(--panel),var(--panel2));
   border:1px solid var(--stroke);
-  border-radius:1.8vmin;
-  padding:1.6vmin 2.4vmin;
+  border-radius:1.8cqmin;
+  padding:1.6cqmin 2.4cqmin;
   position:relative;
   }
   .ttl{
-    font-size:1.8vmin;
+    font-size:1.8cqmin;
     font-weight:700;
-    letter-spacing:.28vmin;
+    letter-spacing:.28cqmin;
     color:#cfc7ee;
     text-transform:uppercase;
     display:flex;
     align-items:center;
-    gap:1vmin;
-    margin-bottom:1vmin;
+    gap:1cqmin;
+    margin-bottom:1cqmin;
   }
   .ttl::before{
     content:"";
-    width:.55vmin;
-    height:2.1vmin;
+    width:.55cqmin;
+    height:2.1cqmin;
     background:var(--pur);
-    border-radius:1vmin;
+    border-radius:1cqmin;
   }
   .muted{
     color:var(--muted);
@@ -60,97 +72,98 @@
   }
 
   /* ── RANK ─────────────────────────────────── */
-  .rank{display:grid;grid-template-columns:auto 1fr;gap:3vmin;align-items:center}
+  .rank{display:grid;grid-template-columns:auto 1fr;gap:3cqmin;align-items:center}
   .emblem{
-    width:11.5vmin;height:11.5vmin;border-radius:50%;
+    width:11.5cqmin;height:11.5cqmin;border-radius:50%;
     display:flex;align-items:center;justify-content:center;
     background:radial-gradient(circle at 50% 40%,#2a1d52,#0c0a1c 70%);
-    border:0.5vmin solid #2c2150;
-    box-shadow:0 0 4vmin rgba(150,100,255,.35),inset 0 0 2vmin rgba(150,100,255,.25);
+    border:0.5cqmin solid #2c2150;
+    box-shadow:0 0 4cqmin rgba(150,100,255,.35),inset 0 0 2cqmin rgba(150,100,255,.25);
     position:relative;
   }
   .emblem::before{
-    content:"";position:absolute;inset:1.2vmin;border-radius:50%;
-    border:0.25vmin solid rgba(170,130,255,.45);
+    content:"";position:absolute;inset:1.2cqmin;border-radius:50%;
+    border:0.25cqmin solid rgba(170,130,255,.45);
   }
-  .emblem span{font-size:4.6vmin;font-weight:800;color:#d8c7ff;text-shadow:0 0 2vmin rgba(160,110,255,.8)}
-  .rank-name{font-size:4.2vmin;font-weight:800;color:var(--pur-bright);line-height:1;letter-spacing:.1vmin}
-  .rank-sub{font-size:2vmin;font-weight:700;letter-spacing:.2vmin;margin-top:1vmin}
-  .rank-next{font-size:1.7vmin;letter-spacing:.12vmin;margin-top:.6vmin}
-  .cp-row{display:flex;justify-content:flex-end;font-size:2vmin;font-weight:700;margin-bottom:1vmin}
-  .tagline{font-size:1.7vmin;letter-spacing:.25vmin;text-align:center;margin-top:1.2vmin;color:#8e88a8}
+  .emblem span{font-size:4.6cqmin;font-weight:800;color:#d8c7ff;text-shadow:0 0 2cqmin rgba(160,110,255,.8)}
+  .rank-name{font-size:4.2cqmin;font-weight:800;color:var(--pur-bright);line-height:1;letter-spacing:.1cqmin}
+  .rank-sub{font-size:2cqmin;font-weight:700;letter-spacing:.2cqmin;margin-top:1cqmin}
+  .rank-next{font-size:1.7cqmin;letter-spacing:.12cqmin;margin-top:.6cqmin}
+  .cp-row{display:flex;justify-content:flex-end;font-size:2cqmin;font-weight:700;margin-bottom:1cqmin}
+  .tagline{font-size:1.7cqmin;letter-spacing:.25cqmin;text-align:center;margin-top:1.2cqmin;color:#8e88a8}
 
   /* ── BARS ─────────────────────────────────── */
-  .bar{height:1.5vmin;background:var(--track);border-radius:1vmin;overflow:hidden;position:relative}
-  .bar>i{display:block;height:100%;background:var(--grad);border-radius:1vmin;
-         box-shadow:0 0 1.6vmin rgba(160,110,255,.6);transition:width .5s ease}
+  .bar{height:1.5cqmin;background:var(--track);border-radius:1cqmin;overflow:hidden;position:relative}
+  .bar>i{display:block;height:100%;background:var(--grad);border-radius:1cqmin;
+         box-shadow:0 0 1.6cqmin rgba(160,110,255,.6);transition:width .5s ease}
   .seg{position:absolute;top:0;bottom:0;width:1px;background:rgba(0,0,0,.55)}
 
   /* ── XP ───────────────────────────────────── */
-  .xp-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.2vmin}
-  .lvl{display:flex;align-items:baseline;gap:1vmin}
-  .lvl b{font-size:1.8vmin;letter-spacing:.2vmin;color:var(--muted)}
-  .lvl em{font-size:4.4vmin;font-weight:800;font-style:normal;color:#fff;line-height:1}
-  .xp-val{font-size:2vmin;font-weight:700}
-  .xp-next{text-align:center;font-size:1.6vmin;letter-spacing:.14vmin;margin-top:1vmin}
+  .xp-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.2cqmin}
+  .lvl{display:flex;align-items:baseline;gap:1cqmin}
+  .lvl b{font-size:1.8cqmin;letter-spacing:.2cqmin;color:var(--muted)}
+  .lvl em{font-size:4.4cqmin;font-weight:800;font-style:normal;color:#fff;line-height:1}
+  .xp-val{font-size:2cqmin;font-weight:700}
+  .xp-next{text-align:center;font-size:1.6cqmin;letter-spacing:.14cqmin;margin-top:1cqmin}
 
   /* ── CLIMAX ───────────────────────────────── */
-  .climax{display:grid;grid-template-columns:auto auto 1fr;gap:3vmin;align-items:center}
+  .climax{display:grid;grid-template-columns:auto auto 1fr;gap:3cqmin;align-items:center}
   .gauge{
-    width:10vmin;height:10vmin;border-radius:50%;position:relative;
+    width:10cqmin;height:10cqmin;border-radius:50%;position:relative;
     background:conic-gradient(var(--pur) calc(var(--p)*1%),var(--track) 0);
-    -webkit-mask:radial-gradient(circle,transparent 3.5vmin,#000 3.6vmin);
-            mask:radial-gradient(circle,transparent 3.5vmin,#000 3.6vmin);
-    filter:drop-shadow(0 0 1.5vmin rgba(160,110,255,.5));
+    -webkit-mask:radial-gradient(circle,transparent 3.5cqmin,#000 3.6cqmin);
+            mask:radial-gradient(circle,transparent 3.5cqmin,#000 3.6cqmin);
+    filter:drop-shadow(0 0 1.5cqmin rgba(160,110,255,.5));
   }
   .gauge-core{
-    position:absolute;inset:1.8vmin;border-radius:50%;
+    position:absolute;inset:1.8cqmin;border-radius:50%;
     display:flex;align-items:center;justify-content:center;
     background:radial-gradient(circle,#241842,#0d0a1e);
-    font-size:3.4vmin;
+    font-size:3.4cqmin;
   }
-  .climax-pct{font-size:4.6vmin;font-weight:800;color:var(--pur-bright);line-height:1}
-  .climax-lbl{font-size:1.6vmin;letter-spacing:.2vmin;color:var(--muted)}
+  .climax-pct{font-size:4.6cqmin;font-weight:800;color:var(--pur-bright);line-height:1}
+  .climax-lbl{font-size:1.6cqmin;letter-spacing:.2cqmin;color:var(--muted)}
   .seg-bar{position:relative}
 
   /* ── STATS GRID ───────────────────────────── */
-  .cols{display:grid;grid-template-columns:1fr 1fr;gap:1.4vmin}
-  .stat{display:flex;align-items:center;gap:1.8vmin;margin:0.8vmin 0}
-  .stat svg{width:3.4vmin;height:3.4vmin;stroke:var(--pur);fill:none;stroke-width:1.6;flex:none}
-  .stat .k{font-size:1.5vmin;letter-spacing:.18vmin;color:var(--muted);text-transform:uppercase}
-  .stat .v{font-size:2.6vmin;font-weight:800;color:#fff}
-  .divider{width:1px;background:var(--stroke);margin:0 1vmin}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:1.4cqmin}
+  .stat{display:flex;align-items:center;gap:1.8cqmin;margin:0.8cqmin 0}
+  .stat svg{width:3.4cqmin;height:3.4cqmin;stroke:var(--pur);fill:none;stroke-width:1.6;flex:none}
+  .stat .k{font-size:1.5cqmin;letter-spacing:.18cqmin;color:var(--muted);text-transform:uppercase}
+  .stat .v{font-size:2.6cqmin;font-weight:800;color:#fff}
+  .divider{width:1px;background:var(--stroke);margin:0 1cqmin}
 
-  .timers{display:grid;grid-template-columns:1fr 1fr;gap:1.4vmin}
-  .clk{display:flex;align-items:center;gap:1.8vmin}
-  .clk svg{width:3.6vmin;height:3.6vmin;stroke:var(--pur);fill:none;stroke-width:1.6;flex:none}
-  .clk .k{font-size:1.4vmin;letter-spacing:.16vmin;color:var(--muted);text-transform:uppercase}
-  .clk .v{font-size:2.6vmin;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+  .timers{display:grid;grid-template-columns:1fr 1fr;gap:1.4cqmin}
+  .clk{display:flex;align-items:center;gap:1.8cqmin}
+  .clk svg{width:3.6cqmin;height:3.6cqmin;stroke:var(--pur);fill:none;stroke-width:1.6;flex:none}
+  .clk .k{font-size:1.4cqmin;letter-spacing:.16cqmin;color:var(--muted);text-transform:uppercase}
+  .clk .v{font-size:2.6cqmin;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
 
   /* ── GOALS ─────────────────────────────────── */
   .goal-row{display:flex;justify-content:space-between;align-items:baseline;
-    font-size:1.5vmin;letter-spacing:.12vmin;color:var(--muted);
-    text-transform:uppercase;margin-bottom:.6vmin}
+    font-size:1.5cqmin;letter-spacing:.12cqmin;color:var(--muted);
+    text-transform:uppercase;margin-bottom:.6cqmin}
   .goal-row b{color:var(--pur-bright);font-weight:700;font-variant-numeric:tabular-nums}
 
   /* ── ACHIEVEMENTS ──────────────────────────── */
-  .achs{display:flex;flex-wrap:wrap;gap:1.4vmin 1vmin;justify-content:space-between}
+  .achs{display:flex;flex-wrap:wrap;gap:1.4cqmin 1cqmin;justify-content:space-between}
   .ach{flex:1 1 21%;min-width:0;text-align:center;opacity:.30;transition:opacity .3s}
   .ach.on{opacity:1}
-  .ach .ico{font-size:3vmin;line-height:1;filter:grayscale(1)}
+  .ach .ico{font-size:3cqmin;line-height:1;filter:grayscale(1)}
   .ach.on .ico{filter:none}
-  .ach .nm{font-size:1.05vmin;letter-spacing:.04vmin;color:var(--muted);
-    text-transform:uppercase;margin-top:.4vmin;line-height:1.1}
+  .ach .nm{font-size:1.05cqmin;letter-spacing:.04cqmin;color:var(--muted);
+    text-transform:uppercase;margin-top:.4cqmin;line-height:1.1}
   .ach.on .nm{color:#cfc7ee}
-  #achToast{position:fixed;left:50%;top:5vmin;transform:translateX(-50%);
+  #achToast{position:fixed;left:50%;top:5cqmin;transform:translateX(-50%);
     background:linear-gradient(180deg,#2a1d52,#140e2b);border:1px solid var(--stroke2);
-    border-radius:1.4vmin;padding:1.3vmin 2.6vmin;font-size:1.9vmin;font-weight:700;
-    color:#e9e6f5;letter-spacing:.1vmin;box-shadow:0 0 4vmin rgba(150,100,255,.55);
+    border-radius:1.4cqmin;padding:1.3cqmin 2.6cqmin;font-size:1.9cqmin;font-weight:700;
+    color:#e9e6f5;letter-spacing:.1cqmin;box-shadow:0 0 4cqmin rgba(150,100,255,.55);
     opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap}
   #achToast.show{opacity:1}
 </style>
 </head>
 <body>
+<div class="hud">
 
   <!-- Achievement unlock toast -->
   <div id="achToast"></div>
@@ -167,7 +180,7 @@
             <div class="rank-sub pur" id="rankSub">RANK I</div>
             <div class="rank-next muted" id="rankNext">NEXT RANK: II</div>
           </div>
-          <div style="flex:1;margin-left:3vmin;min-width:40%">
+          <div style="flex:1;margin-left:3cqmin;min-width:40%">
             <div class="cp-row"><span class="pur" id="cpText">0 / 0 CP</span></div>
             <div class="bar"><i id="cpFill" style="width:0%"></i></div>
             <div class="tagline">Indulge.&nbsp;&nbsp;Descend.&nbsp;&nbsp;Become.</div>
@@ -198,12 +211,12 @@
         <div class="climax-lbl">CURRENT CLIMAX</div>
       </div>
       <div class="seg-bar">
-        <div class="bar" style="height:2vmin"><i id="climaxFill" style="width:0%"></i>
+        <div class="bar" style="height:2cqmin"><i id="climaxFill" style="width:0%"></i>
           <span class="seg" style="left:25%"></span>
           <span class="seg" style="left:50%"></span>
           <span class="seg" style="left:75%"></span>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:1.4vmin;color:var(--muted);margin-top:.8vmin">
+        <div style="display:flex;justify-content:space-between;font-size:1.4cqmin;color:var(--muted);margin-top:.8cqmin">
           <span>25%</span><span>50%</span><span>75%</span><span>100%</span>
         </div>
       </div>
@@ -235,12 +248,12 @@
 
   <!-- PROGRESS (goals + achievements) -->
   <div class="panel">
-    <div class="ttl">Progress&nbsp;&nbsp;<span class="muted" id="achCount" style="font-size:1.3vmin;letter-spacing:.1vmin">0/8</span></div>
+    <div class="ttl">Progress&nbsp;&nbsp;<span class="muted" id="achCount" style="font-size:1.3cqmin;letter-spacing:.1cqmin">0/8</span></div>
     <div class="goal-row"><span>Daily XP</span><b id="goalDailyText">0 / 3000</b></div>
     <div class="bar"><i id="goalDailyFill" style="width:0%"></i></div>
-    <div class="goal-row" style="margin-top:1vmin"><span>Weekly XP</span><b id="goalWeekText">0 / 10000</b></div>
+    <div class="goal-row" style="margin-top:1cqmin"><span>Weekly XP</span><b id="goalWeekText">0 / 10000</b></div>
     <div class="bar"><i id="goalWeekFill" style="width:0%"></i></div>
-    <div class="achs" id="achs" style="margin-top:1.6vmin"></div>
+    <div class="achs" id="achs" style="margin-top:1.6cqmin"></div>
   </div>
 
   <!-- TIMERS -->
@@ -256,6 +269,8 @@
       </div>
     </div>
   </div>
+
+</div><!-- .hud -->
 
 <script>
 "use strict";
