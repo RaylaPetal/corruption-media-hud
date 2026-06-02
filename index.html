@@ -41,6 +41,8 @@
   .lvl{display:flex;align-items:baseline;gap:1cqw}
   .lvl b{font-size:1.6cqw;letter-spacing:.2cqw;color:var(--muted)}
   .lvl em{font-size:5cqw;font-weight:800;font-style:normal;color:#fff;line-height:1}
+  .xmult{margin-left:auto;align-self:center;font-size:1.9cqw;font-weight:800;color:var(--gold);
+    text-shadow:0 0 1.4cqw rgba(255,200,80,.5);transition:opacity .3s}
   .xprow{display:flex;justify-content:space-between;font-size:1.4cqw;color:var(--muted);margin-top:.4cqw}
   .sub{font-size:1.2cqw;letter-spacing:.18cqw;color:var(--muted);text-transform:uppercase;
     margin:1.8cqw 0 .8cqw;border-top:1px solid var(--stroke);padding-top:1.2cqw}
@@ -68,6 +70,9 @@
   .dot.on{background:radial-gradient(circle,#c79bff,#7a3df0);box-shadow:0 0 1.4cqw rgba(160,110,255,.7)}
   .tag{font-size:1.3cqw;color:#8e88a8;margin-top:auto;padding-top:1.2cqw}
   .tag em{color:var(--pur-bright);font-style:normal}
+  .heatpill{font-size:1.3cqw;font-weight:700;letter-spacing:.08cqw;color:#1a0e06;
+    background:linear-gradient(90deg,#ff7a3c,var(--gold));border-radius:1cqw;
+    padding:.6cqw 1.2cqw;margin-bottom:1cqw;box-shadow:0 0 1.8cqw rgba(255,140,60,.55)}
 
   /* PROGRESS */
   .goal{margin-bottom:1.4cqw}
@@ -93,7 +98,7 @@
   <!-- ── PLAYER ───────────────────────────── -->
   <div class="col">
     <div class="hd">Player</div>
-    <div class="lvl"><b>LV.</b><em id="lvl">1</em></div>
+    <div class="lvl"><b>LV.</b><em id="lvl">1</em><span class="xmult" id="xMult">×1.0 XP</span></div>
     <div class="bar"><i id="xpFill"></i></div>
     <div class="xprow"><span id="xpVal">0 / 0 XP</span><span id="xpNext">0 to next</span></div>
 
@@ -102,6 +107,7 @@
       <div class="num"><div class="v" id="nPart">0</div><div class="k">Partners</div></div>
       <div class="num"><div class="v" id="nLoads">0</div><div class="k">Loads</div></div>
       <div class="num"><div class="v" id="nCream">0</div><div class="k">Bred</div></div>
+      <div class="num"><div class="v" id="nNoto">0</div><div class="k">Notoriety</div></div>
     </div>
 
     <div class="sub">Where She Takes It</div>
@@ -118,6 +124,7 @@
     <div class="emblem"><span id="badge">0</span></div>
     <div class="crank" id="crank">RANK 0</div>
     <div class="ctitle" id="ctitle">Innocent One</div>
+    <div class="heatpill" id="heatPill" style="display:none">🔥 In Heat · 1.5× XP · <span id="heatLeft">0m</span></div>
     <div class="cxp"><span id="cxpVal">0 / 0</span><span>CORRUPTION XP</span></div>
     <div class="bar"><i id="cxpFill"></i></div>
     <div class="dots" id="dots"></div>
@@ -157,7 +164,7 @@ var TITLES = ["Innocent One","Curious Kitten","Naughty Girl","Slutty","Filthy Sl
               "Cum Slut","Depraved Whore","Cock Addict","Mindless Fucktoy","Cum Dumpster"];
 var ROMAN  = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
 var DAILY_GOAL = 2000, WEEKLY_GOAL = 10000;   // must match inm_monitor
-var ACH_COUNT  = 8;
+var ACH_COUNT  = 11;   // 8 achievements + 3 milestones (achFlags bits)
 var PRESTIGE_MAX = 10;
 
 var DESIGN_W = 1000;
@@ -188,6 +195,10 @@ function render(d){
 
   // PLAYER
   document.getElementById("lvl").textContent = lv;
+  var mx = (+d.mx || 100) / 100;
+  var xm = document.getElementById("xMult");
+  xm.textContent = "×" + mx.toFixed(1) + " XP";
+  xm.style.opacity = (mx > 1.05) ? "1" : ".45";   // dim when there's no real boost
   var range=lt-lb, cur=xp-lb;
   document.getElementById("xpFill").style.width = pct(cur,range)+"%";
   document.getElementById("xpVal").textContent  = commas(xp)+" / "+commas(lt)+" XP";
@@ -196,6 +207,7 @@ function render(d){
   document.getElementById("nPart").textContent  = commas(d.tp);
   document.getElementById("nLoads").textContent = commas(d.th);
   document.getElementById("nCream").textContent = commas(d.cr);
+  document.getElementById("nNoto").textContent  = commas(d.no);
 
   var zp=+d.zp, za=+d.za, zf=+d.zf, zc=+d.zc, zb=+d.zb;
   var zmax = Math.max(1, zp, za, zf, zc, zb);
@@ -237,6 +249,11 @@ function tickClocks(){
   var since = now - (+state.lc);
   document.getElementById("sinceAct").textContent  = fmtClock(since);
   document.getElementById("idleTimer").textContent = fmtClock((+state.it) - since);
+  // Live "In Heat" pill: heat expires at (broadcast time + remaining secs)
+  var rem = ((+state.nw) + (+state.ht)) - now;
+  var hp = document.getElementById("heatPill");
+  if (rem > 0) { hp.style.display=""; document.getElementById("heatLeft").textContent = Math.ceil(rem/60)+"m"; }
+  else hp.style.display = "none";
 }
 
 function loadHash(){

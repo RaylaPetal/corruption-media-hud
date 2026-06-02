@@ -75,6 +75,7 @@
     <div class="tab on" data-view="corruption">Corruption</div>
     <div class="tab" data-view="loads">Most Loads</div>
     <div class="tab" data-view="partners">Most Partners</div>
+    <div class="tab" data-view="notoriety">Notoriety</div>
   </div>
 
   <div class="board" id="board">
@@ -94,6 +95,7 @@ const VIEWS = {
   corruption: { lbl:"XP",       sort:(a,b)=> b.prestige-a.prestige || b.xp-a.xp,        val:r=> (r.xp||0).toLocaleString() },
   loads:      { lbl:"Loads",    sort:(a,b)=> (b.loads||0)-(a.loads||0),                 val:r=> (r.loads||0).toLocaleString() },
   partners:   { lbl:"Partners", sort:(a,b)=> (b.partners||0)-(a.partners||0),           val:r=> (r.partners||0).toLocaleString() },
+  notoriety:  { lbl:"Notoriety",sort:(a,b)=> (b.notoriety||0)-(a.notoriety||0),         val:r=> (r.notoriety||0).toLocaleString() },
 };
 
 let rows = [];
@@ -137,7 +139,7 @@ function render(){
 async function load(){
   const board = document.getElementById("board");
   try{
-    const res = await fetch(`${SUPA_URL}?select=name,xp,level,prestige,partners,loads,title,updated_at&order=prestige.desc,xp.desc&limit=200`, {
+    const res = await fetch(`${SUPA_URL}?select=name,xp,level,prestige,partners,loads,notoriety,title,updated_at&order=prestige.desc,xp.desc&limit=200`, {
       headers:{ apikey:SUPA_KEY, Authorization:"Bearer "+SUPA_KEY }
     });
     if(!res.ok) throw new Error(res.status);
