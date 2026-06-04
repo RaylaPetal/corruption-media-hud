@@ -74,6 +74,21 @@
     background:linear-gradient(90deg,#ff7a3c,var(--gold));border-radius:1cqw;
     padding:.6cqw 1.2cqw;margin-bottom:1cqw;box-shadow:0 0 1.8cqw rgba(255,140,60,.55)}
 
+  /* Sex mode — 3 round intensity buttons (relay to the Lovense script) */
+  .sexrow{display:flex;gap:1.4cqw;margin:1.2cqw 0 .6cqw}
+  .sexbtn{width:7.4cqw;height:7.4cqw;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;text-align:center;font-size:1.15cqw;font-weight:700;
+    letter-spacing:.05cqw;text-transform:uppercase;cursor:pointer;color:#cfc7ee;line-height:1.1;
+    background:radial-gradient(circle at 50% 38%,#241a48,#0c0a1c 72%);
+    border:.4cqw solid #2c2150;transition:.15s}
+  .sexbtn:hover{border-color:var(--pur);box-shadow:0 0 1.8cqw rgba(150,100,255,.5)}
+  .sexbtn.on{color:#fff;border-color:var(--pur-bright);
+    background:radial-gradient(circle at 50% 38%,#7a46ff,#2a1150 72%);
+    box-shadow:0 0 2.6cqw rgba(160,110,255,.8)}
+  .sexstate{font-size:1.25cqw;font-weight:700;letter-spacing:.1cqw;color:var(--muted);
+    text-transform:uppercase}
+  .sexstate.on{color:var(--pur-bright)}
+
   /* PROGRESS */
   .goal{margin-bottom:1.4cqw}
   .goal .gr{display:flex;justify-content:space-between;align-items:baseline;
@@ -128,6 +143,12 @@
     <div class="cxp"><span id="cxpVal">0 / 0</span><span>CORRUPTION XP</span></div>
     <div class="bar"><i id="cxpFill"></i></div>
     <div class="dots" id="dots"></div>
+    <div class="sexrow">
+      <div class="sexbtn" data-sex="1">Slow</div>
+      <div class="sexbtn" data-sex="2">Medium</div>
+      <div class="sexbtn" data-sex="3">Intense</div>
+    </div>
+    <div class="sexstate" id="sexState">Sex Mode: Off</div>
     <div class="tag">Corruption shapes her path.<br><em id="favLine">Favorite hole: —</em></div>
   </div>
 
@@ -268,6 +289,28 @@ setInterval(tickClocks, 1000);
 document.getElementById("achBtn").addEventListener("click", function(){
   if (gEp) { try { fetch(gEp + "?ach=1", { mode:"no-cors" }); } catch(e){} }
 });
+
+// Sex mode — relay the chosen intensity to inm_lovense; highlight the active one.
+// Clicking the already-active button turns it off (sends 0). State is client-side.
+var curSex = 0;
+var SEXLBL = ["Off","Slow","Medium","Intense"];
+function setSex(n){
+  curSex = n;
+  var btns = document.querySelectorAll(".sexbtn"), i;
+  for(i=0;i<btns.length;i++) btns[i].classList.toggle("on", (+btns[i].getAttribute("data-sex"))===n);
+  var ss = document.getElementById("sexState");
+  ss.textContent = "Sex Mode: " + SEXLBL[n];
+  ss.classList.toggle("on", n>0);
+}
+(function(){
+  var btns = document.querySelectorAll(".sexbtn"), i;
+  for(i=0;i<btns.length;i++) btns[i].addEventListener("click", function(){
+    var n = +this.getAttribute("data-sex");
+    if (n === curSex) n = 0;                         // click active → off
+    setSex(n);
+    if (gEp) { try { fetch(gEp + "?sex=" + n, { mode:"no-cors" }); } catch(e){} }
+  });
+})();
 
 loadHash();
 fitHud();
