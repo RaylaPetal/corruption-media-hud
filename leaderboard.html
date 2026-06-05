@@ -71,11 +71,19 @@
     <div class="sub">Hall of Depravity — who's furthest gone</div>
   </header>
 
-  <div class="tabs">
+  <div class="tabs" id="viewTabs">
     <div class="tab on" data-view="corruption">Corruption</div>
     <div class="tab" data-view="loads">Most Loads</div>
     <div class="tab" data-view="partners">Most Partners</div>
     <div class="tab" data-view="notoriety">Notoriety</div>
+  </div>
+
+  <div class="tabs" id="diffTabs">
+    <div class="tab on" data-diff="all">All</div>
+    <div class="tab" data-diff="0">Tease</div>
+    <div class="tab" data-diff="1">Naughty</div>
+    <div class="tab" data-diff="2">Slut</div>
+    <div class="tab" data-diff="3">Custom</div>
   </div>
 
   <div class="board" id="board">
@@ -100,6 +108,7 @@ const VIEWS = {
 
 let rows = [];
 let view = "corruption";
+let diff = "all";   // "all" or "0".."3" (Tease/Naughty/Slut/Custom)
 
 function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function rel(t){
@@ -113,9 +122,10 @@ function rel(t){
 
 function render(){
   const v = VIEWS[view];
-  const sorted = [...rows].sort(v.sort);
+  const base = (diff==="all") ? rows : rows.filter(r=> String(r.difficulty)===diff);
+  const sorted = [...base].sort(v.sort);
   const board = document.getElementById("board");
-  if(!sorted.length){ board.innerHTML = '<div class="state">No corrupted souls yet. Be the first.</div>'; return; }
+  if(!sorted.length){ board.innerHTML = '<div class="state">No corrupted souls here yet. Be the first.</div>'; return; }
 
   let html = `<div class="row head"><div class="rank">#</div><div>Player</div><div class="metric">${v.lbl}</div></div>`;
   sorted.forEach((r,i)=>{
@@ -139,7 +149,7 @@ function render(){
 async function load(){
   const board = document.getElementById("board");
   try{
-    const res = await fetch(`${SUPA_URL}?select=name,xp,level,prestige,partners,loads,notoriety,title,updated_at&order=prestige.desc,xp.desc&limit=200`, {
+    const res = await fetch(`${SUPA_URL}?select=name,xp,level,prestige,partners,loads,notoriety,title,difficulty,updated_at&order=prestige.desc,xp.desc&limit=200`, {
       headers:{ apikey:SUPA_KEY, Authorization:"Bearer "+SUPA_KEY }
     });
     if(!res.ok) throw new Error(res.status);
@@ -152,11 +162,19 @@ async function load(){
   }
 }
 
-document.querySelectorAll(".tab").forEach(t=>{
+document.querySelectorAll("#viewTabs .tab").forEach(t=>{
   t.addEventListener("click", ()=>{
-    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+    document.querySelectorAll("#viewTabs .tab").forEach(x=>x.classList.remove("on"));
     t.classList.add("on");
     view = t.dataset.view;
+    render();
+  });
+});
+document.querySelectorAll("#diffTabs .tab").forEach(t=>{
+  t.addEventListener("click", ()=>{
+    document.querySelectorAll("#diffTabs .tab").forEach(x=>x.classList.remove("on"));
+    t.classList.add("on");
+    diff = t.dataset.diff;
     render();
   });
 });
