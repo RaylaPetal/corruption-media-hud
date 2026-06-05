@@ -155,14 +155,16 @@
   <!-- ── PROGRESS ─────────────────────────── -->
   <div class="col">
     <div class="hd">Progress</div>
-    <div class="goal">
-      <div class="gr"><span>Daily XP</span><b id="dxVal">0 / 0</b></div>
-      <div class="bar barG"><i id="dxFill"></i></div>
-    </div>
-    <div class="goal">
-      <div class="gr"><span>Weekly XP</span><b id="wxVal">0 / 0</b></div>
-      <div class="bar barG"><i id="wxFill"></i></div>
-    </div>
+
+    <div class="sub">Daily Goals</div>
+    <div class="goal"><div class="gr"><span>XP</span><b id="dxVal">0 / 0</b></div><div class="bar barG"><i id="dxFill"></i></div></div>
+    <div class="goal"><div class="gr"><span>Partners</span><b id="dpVal">0 / 0</b></div><div class="bar barG"><i id="dpFill"></i></div></div>
+    <div class="goal"><div class="gr"><span>Loads</span><b id="dlVal">0 / 0</b></div><div class="bar barG"><i id="dlFill"></i></div></div>
+
+    <div class="sub">Weekly Goals</div>
+    <div class="goal"><div class="gr"><span>XP</span><b id="wxVal">0 / 0</b></div><div class="bar barG"><i id="wxFill"></i></div></div>
+    <div class="goal"><div class="gr"><span>Partners</span><b id="wpVal">0 / 0</b></div><div class="bar barG"><i id="wpFill"></i></div></div>
+    <div class="goal"><div class="gr"><span>Loads</span><b id="wlVal">0 / 0</b></div><div class="bar barG"><i id="wlFill"></i></div></div>
 
     <div class="sub">Activity</div>
     <div class="clk">
@@ -174,7 +176,7 @@
       <div><div class="k">Until Decay</div><div class="v" id="idleTimer">00:00:00</div></div>
     </div>
 
-    <div class="achbtn" id="achBtn">Achievements<small id="achCount">0 / 8 unlocked</small></div>
+    <div class="achbtn" id="achBtn">Achievements<small id="achCount">0 / 11 unlocked</small></div>
   </div>
 
 </div>
@@ -184,8 +186,10 @@
 var TITLES = ["Innocent One","Curious Kitten","Naughty Girl","Slutty","Filthy Slut",
               "Cum Slut","Depraved Whore","Cock Addict","Mindless Fucktoy","Cum Dumpster"];
 var ROMAN  = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
-var DAILY_GOAL = 2000, WEEKLY_GOAL = 10000;   // must match inm_monitor
-var ACH_COUNT  = 11;   // 8 achievements + 3 milestones (achFlags bits)
+// Goal targets — must match inm_monitor
+var DAILY_GOAL = 2000,  DAILY_PART = 2,  DAILY_LOAD = 10;
+var WEEKLY_GOAL = 12000, WEEKLY_PART = 10, WEEKLY_LOAD = 50;
+var ACH_COUNT  = 11;   // all achievements (achFlags bits)
 var PRESTIGE_MAX = 10;
 
 var DESIGN_W = 1000;
@@ -252,11 +256,11 @@ function render(d){
   var fav="—"; if(zp+za+zf>0){ if(zp>=za&&zp>=zf)fav="Pussy"; else if(za>=zf)fav="Ass"; else fav="Throat"; }
   document.getElementById("favLine").textContent = "Favorite hole: "+fav;
 
-  // PROGRESS
-  document.getElementById("dxVal").textContent = commas(d.dx)+" / "+commas(DAILY_GOAL);
-  document.getElementById("dxFill").style.width = pct(+d.dx,DAILY_GOAL)+"%";
-  document.getElementById("wxVal").textContent = commas(d.wx)+" / "+commas(WEEKLY_GOAL);
-  document.getElementById("wxFill").style.width = pct(+d.wx,WEEKLY_GOAL)+"%";
+  // PROGRESS — daily/weekly goals (XP, Partners, Loads)
+  function goal(idv,fillv,cur,tgt){ document.getElementById(idv).textContent=commas(cur)+" / "+commas(tgt);
+                                    document.getElementById(fillv).style.width=pct(cur,tgt)+"%"; }
+  goal("dxVal","dxFill",+d.dx, DAILY_GOAL);  goal("dpVal","dpFill",+d.dp, DAILY_PART);  goal("dlVal","dlFill",+d.dl, DAILY_LOAD);
+  goal("wxVal","wxFill",+d.wx, WEEKLY_GOAL); goal("wpVal","wpFill",+d.wp, WEEKLY_PART); goal("wlVal","wlFill",+d.wl, WEEKLY_LOAD);
   document.getElementById("achCount").textContent = countBits(d.ac)+" / "+ACH_COUNT+" unlocked";
 
   clockOffset = (+d.nw) - Math.floor(Date.now()/1000);
