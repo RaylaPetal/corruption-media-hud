@@ -23,10 +23,12 @@
   .close{cursor:pointer;width:4cqw;height:4cqw;border-radius:50%;border:1px solid var(--stroke2);
     display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2.4cqw;line-height:1}
   .close:hover{color:#fff;border-color:var(--pur)}
-  .list{display:flex;flex-direction:column;gap:1.4cqw}
-  .ach{display:flex;gap:2cqw;align-items:center;background:linear-gradient(180deg,var(--panel),var(--panel2));
+  .list{display:flex;flex-direction:column;gap:1.4cqw;flex:1}
+  .ach{display:flex;gap:2cqw;align-items:center;min-height:9.2cqw;
+    background:linear-gradient(180deg,var(--panel),var(--panel2));
     border:1px solid var(--stroke);border-radius:1.4cqw;padding:1.8cqw 2cqw;opacity:.45;transition:opacity .3s}
   .ach.on{opacity:1;border-color:var(--stroke2)}
+  .ach.ph{background:none;border-color:transparent;opacity:0}  /* spacer keeps page height stable */
   .ico{font-size:4.4cqw;line-height:1;filter:grayscale(1)}
   .ach.on .ico{filter:none}
   .meta{flex:1;min-width:0}
@@ -36,72 +38,125 @@
   .badge{font-size:1.3cqw;letter-spacing:.14cqw;text-transform:uppercase;font-weight:700;
     color:var(--muted);white-space:nowrap}
   .ach.on .badge{color:var(--gold)}
+  /* pagination */
+  .nav{display:flex;align-items:center;justify-content:space-between;margin-top:1.6cqw;
+    padding-top:1.4cqw;border-top:1px solid var(--stroke)}
+  .navbtn{cursor:pointer;font-size:1.8cqw;font-weight:700;color:var(--pur-bright);
+    padding:.8cqw 2cqw;border:1px solid var(--stroke2);border-radius:1cqw;user-select:none}
+  .navbtn:hover{color:#fff;border-color:var(--pur)}
+  .dots{display:flex;gap:1.2cqw}
+  .dot{width:1.4cqw;height:1.4cqw;border-radius:50%;background:var(--stroke2);cursor:pointer}
+  .dot.act{background:var(--pur-bright)}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top">
     <div class="ttl">Achievements</div>
-    <div class="count" id="count">0 / 11</div>
+    <div class="count" id="count">0 / 23</div>
     <div class="close" id="close">&times;</div>
   </div>
   <div class="list" id="list"></div>
+  <div class="nav" id="nav">
+    <div class="navbtn" id="prev">&lsaquo; Prev</div>
+    <div class="dots" id="dots"></div>
+    <div class="navbtn" id="next">Next &rsaquo;</div>
+  </div>
 </div>
 
 <script>
 "use strict";
-// bit must match inm_monitor's achFlags
+// bit must match CorruptionRewards.lsl / Core achFlags
 var ACHS = [
-  {bit:1,   ico:"💦", nm:"First Creampie",  ds:"Get bred at least once — take a creampie. +200 XP"},
-  {bit:2,   ico:"🕳️", nm:"All Holes Used",  ds:"Take a load in pussy, ass and throat in a single session. +500 XP"},
-  {bit:4,   ico:"👁", nm:"Exhibitionist",   ds:"Get used with 5 or more people watching nearby. +600 XP"},
-  {bit:8,   ico:"🏆", nm:"Town Toy",        ds:"Be used by 25 different partners (lifetime). +1500 XP"},
-  {bit:16,  ico:"⭐", nm:"Head to Toe",      ds:"Get messy in all five zones (face, pussy, ass, chest, body) in one session. +800 XP"},
-  {bit:32,  ico:"😈", nm:"First Prestige",   ds:"Prestige for the first time — reborn filthier. +1000 XP"},
-  {bit:64,  ico:"🔥", nm:"Prestige V",       ds:"Reach prestige rank V. +3000 XP"},
-  {bit:128, ico:"👑", nm:"Max Prestige",     ds:"Reach maximum prestige (rank X). +6000 XP"},
-  {bit:256,  ico:"👥", nm:"Gangbang",      ds:"Used by 3 different partners in one session. +1000 XP"},
-  {bit:512,  ico:"🌊", nm:"Soaked",        ds:"Take 12 loads in a single session. +1200 XP"},
-  {bit:1024, ico:"📣", nm:"Local Legend",  ds:"Reach 200 notoriety from witnessed public acts. +1500 XP"}
+  {bit:1,       ico:"💦", nm:"First Creampie",  ds:"Get bred at least once — take a creampie. +200 XP"},
+  {bit:2,       ico:"🕳️", nm:"All Holes Used",  ds:"Take a load in pussy, ass and throat in a single session. +500 XP"},
+  {bit:4,       ico:"👁", nm:"Exhibitionist",   ds:"Get used with 5 or more people watching nearby. +600 XP"},
+  {bit:8,       ico:"🏆", nm:"Town Toy",        ds:"Be used by 25 different partners (lifetime). +1500 XP"},
+  {bit:16,      ico:"⭐", nm:"Head to Toe",      ds:"Get messy in all five zones (face, pussy, ass, chest, body) in one session. +800 XP"},
+  {bit:32,      ico:"😈", nm:"First Prestige",   ds:"Prestige for the first time — reborn filthier. +1000 XP"},
+  {bit:64,      ico:"🔥", nm:"Prestige V",       ds:"Reach prestige rank V. +3000 XP"},
+  {bit:128,     ico:"👑", nm:"Max Prestige",     ds:"Reach maximum prestige (rank X). +6000 XP"},
+  {bit:256,     ico:"👥", nm:"Gangbang",         ds:"Used by 3 different partners in one session. +1000 XP"},
+  {bit:512,     ico:"🌊", nm:"Soaked",           ds:"Take 12 loads in a single session. +1200 XP"},
+  {bit:1024,    ico:"📣", nm:"Local Legend",     ds:"Reach 200 notoriety from witnessed public acts. +1500 XP"},
+  {bit:2048,    ico:"💍", nm:"Bred",             ds:"Take 10 creampies (lifetime). +800 XP"},
+  {bit:4096,    ico:"🐮", nm:"Breeding Stock",   ds:"Take 50 creampies (lifetime). +2500 XP"},
+  {bit:8192,    ico:"🥵", nm:"Used Up",          ds:"Receive 500 loads (lifetime). +2500 XP"},
+  {bit:16384,   ico:"🌟", nm:"Rising Slut",      ds:"Reach level 5. +500 XP"},
+  {bit:32768,   ico:"🏅", nm:"Corrupted",        ds:"Reach level 10. +1500 XP"},
+  {bit:65536,   ico:"💋", nm:"Throat Goat",      ds:"Take 50 facials (lifetime). +1200 XP"},
+  {bit:131072,  ico:"🍑", nm:"Anal Addict",      ds:"Take 50 anal loads (lifetime). +1200 XP"},
+  {bit:262144,  ico:"🌸", nm:"Pussy Pet",        ds:"Take 100 vaginal loads (lifetime). +1500 XP"},
+  {bit:524288,  ico:"🎖️", nm:"Notorious",        ds:"Reach 500 notoriety. +2000 XP"},
+  {bit:1048576, ico:"💎", nm:"Cum Legend",       ds:"Reach 1000 notoriety. +3000 XP"},
+  {bit:2097152, ico:"🏃", nm:"Marathon",         ds:"Take 25 loads in a single session. +2000 XP"},
+  {bit:4194304, ico:"🚲", nm:"Town Bicycle",     ds:"Used by 5 different partners in one session. +1500 XP"}
 ];
 
-var DESIGN_W = 760, gEp = "";
+var DESIGN_W = 760, PER_PAGE = 6, gEp = "", gAc = 0, gPage = 0;
+
 function fit(){ var w=document.querySelector(".wrap"); if(!w) return;
   w.style.transform = "scale(" + (innerWidth/DESIGN_W) + "," + (innerHeight/(w.offsetHeight||1000)) + ")"; }
 window.addEventListener("resize", fit);
 window.addEventListener("load", fit);
 (function(){ var e=document.querySelector(".wrap"); if(window.ResizeObserver&&e) new ResizeObserver(fit).observe(e); })();
 
-function build(){
-  var h="", i;
-  for(i=0;i<ACHS.length;i++){ var a=ACHS[i];
-    h+='<div class="ach" id="a'+a.bit+'"><div class="ico">'+a.ico+'</div>'
-     + '<div class="meta"><div class="nm">'+a.nm+'</div><div class="ds">'+a.ds+'</div></div>'
-     + '<div class="badge" id="b'+a.bit+'">Locked</div></div>';
+function pageCount(){ return Math.ceil(ACHS.length / PER_PAGE); }
+
+function draw(){
+  var pages = pageCount();
+  if (gPage < 0) gPage = 0;
+  if (gPage >= pages) gPage = pages - 1;
+
+  var got = 0, i;
+  for (i = 0; i < ACHS.length; i++) if ((gAc & ACHS[i].bit) !== 0) got++;
+
+  // Always render exactly PER_PAGE rows (pad with spacers) so every page is the same
+  // height — the prim scale stays constant and cards never squish.
+  var h = "", start = gPage * PER_PAGE;
+  for (i = start; i < start + PER_PAGE; i++){
+    if (i < ACHS.length){
+      var a = ACHS[i], on = (gAc & a.bit) !== 0;
+      h += '<div class="ach' + (on ? ' on' : '') + '"><div class="ico">' + a.ico + '</div>'
+         + '<div class="meta"><div class="nm">' + a.nm + '</div><div class="ds">' + a.ds + '</div></div>'
+         + '<div class="badge">' + (on ? 'Unlocked' : 'Locked') + '</div></div>';
+    } else {
+      h += '<div class="ach ph"></div>';
+    }
   }
-  document.getElementById("list").innerHTML=h;
+  document.getElementById("list").innerHTML = h;
+  document.getElementById("count").textContent = got + " / " + ACHS.length;
+
+  var dh = "", p;
+  for (p = 0; p < pages; p++) dh += '<span class="dot' + (p === gPage ? ' act' : '') + '" data-p="' + p + '"></span>';
+  document.getElementById("dots").innerHTML = dh;
+  document.getElementById("prev").style.visibility = gPage > 0 ? "visible" : "hidden";
+  document.getElementById("next").style.visibility = gPage < pages - 1 ? "visible" : "hidden";
+  fit();
 }
-build();
 
 function render(d){
   if (d.ep) gEp = d.ep;
-  var ac = +d.ac||0, got=0, i;
-  for(i=0;i<ACHS.length;i++){ var a=ACHS[i], on=(ac&a.bit)!==0; if(on)got++;
-    document.getElementById("a"+a.bit).classList.toggle("on", on);
-    document.getElementById("b"+a.bit).textContent = on ? "Unlocked" : "Locked";
-  }
-  document.getElementById("count").textContent = got+" / "+ACHS.length;
-  fit();
+  gAc = +d.ac || 0;
+  draw();   // keep the current page across data updates
 }
 
 function loadHash(){ var h=location.hash.slice(1); if(!h) return;
   try{ render(JSON.parse(decodeURIComponent(h))); }catch(e){} }
 window.addEventListener("hashchange", loadHash);
 
+// pagination clicks (pure client-side — no in-world script needed)
+document.getElementById("prev").addEventListener("click", function(){ gPage--; draw(); });
+document.getElementById("next").addEventListener("click", function(){ gPage++; draw(); });
+document.getElementById("dots").addEventListener("click", function(e){
+  var t = e.target; if (t && t.getAttribute("data-p") !== null){ gPage = +t.getAttribute("data-p"); draw(); }
+});
+
 document.getElementById("close").addEventListener("click", function(){
   if (gEp) { try { fetch(gEp + "?ach=0", { mode:"no-cors" }); } catch(e){} }
 });
 
+draw();      // initial empty-state render so the layout shows before data arrives
 loadHash();
 fit();
 </script>
