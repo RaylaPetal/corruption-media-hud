@@ -132,6 +132,14 @@
     <div class="zrow"><span class="zk">Chest</span><div class="bar"><i id="zChest"></i></div><span class="zv" id="vChest">0</span></div>
     <div class="zrow"><span class="zk">Body</span><div class="bar"><i id="zBody"></i></div><span class="zv" id="vBody">0</span></div>
 
+    <!-- Creampie breakdown — only shown on INM (Spunked has only vaginal, shown as "Bred") -->
+    <div id="cpSection" style="display:none">
+      <div class="sub">Creampies</div>
+      <div class="zrow"><span class="zk">Throat ♥</span><div class="bar barG"><i id="zCThroat"></i></div><span class="zv" id="vCThroat">0</span></div>
+      <div class="zrow"><span class="zk">Pussy ♥</span><div class="bar barG"><i id="zCVag"></i></div><span class="zv" id="vCVag">0</span></div>
+      <div class="zrow"><span class="zk">Anal ♥</span><div class="bar barG"><i id="zCAnal"></i></div><span class="zv" id="vCAnal">0</span></div>
+    </div>
+
     <div class="sub">Activity</div>
     <div class="clk">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
@@ -176,7 +184,7 @@
     <div class="goal"><div class="gr"><span>Partners</span><b id="wpVal">0 / 0</b></div><div class="bar barG"><i id="wpFill"></i></div></div>
     <div class="goal"><div class="gr"><span>Loads</span><b id="wlVal">0 / 0</b></div><div class="bar barG"><i id="wlFill"></i></div></div>
 
-    <div class="achbtn" id="achBtn">Achievements<small id="achCount">0 / 23 unlocked</small></div>
+    <div class="achbtn" id="achBtn">Achievements<small id="achCount">0 / 25 unlocked</small></div>
   </div>
 
 </div>
@@ -189,7 +197,7 @@ var ROMAN  = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
 // Goal targets — must match inm_monitor
 var DAILY_GOAL = 2000,  DAILY_PART = 2,  DAILY_LOAD = 10;
 var WEEKLY_GOAL = 12000, WEEKLY_PART = 10, WEEKLY_LOAD = 50;
-var ACH_COUNT  = 23;   // all achievements (achFlags bits)
+var ACH_COUNT  = 25;   // all achievements (achFlags bits)
 var PRESTIGE_MAX = 10;
 
 var DESIGN_W = 1000;
@@ -240,6 +248,17 @@ function render(d){
                              document.getElementById(val).textContent=commas(n); }
   zone("zPussy","vPussy",zp); zone("zAss","vAss",za); zone("zFace","vFace",zf);
   zone("zChest","vChest",zc); zone("zBody","vBody",zb);
+
+  // Creampie breakdown — INM only (Spunked: vaginal creampie is the "Bred" stat above)
+  var isInm = (+d.cs === 1);
+  document.getElementById("cpSection").style.display = isInm ? "" : "none";
+  if (isInm){
+    var ct=+d.oc||0, cv=+d.cr||0, ca=+d.nc||0;            // throat, vaginal, anal creampies
+    var cmax=Math.max(1,ct,cv,ca);
+    var cbar=function(f,v,n){ document.getElementById(f).style.width=(n/cmax*100)+"%";
+                             document.getElementById(v).textContent=commas(n); };
+    cbar("zCThroat","vCThroat",ct); cbar("zCVag","vCVag",cv); cbar("zCAnal","vCAnal",ca);
+  }
 
   // CORRUPTION
   document.getElementById("badge").textContent  = (pr>0?roman(pr):"0");
