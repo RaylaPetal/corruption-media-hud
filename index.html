@@ -153,7 +153,7 @@
     <div class="cxp"><span id="cxpVal">0 / 0</span><span>CORRUPTION XP</span></div>
     <div class="bar"><i id="cxpFill"></i></div>
     <div class="dots" id="dots"></div>
-    <div class="sexrow">
+    <div class="sexrow" id="sexRow">
       <div class="sexbtn" data-sex="1">Slow</div>
       <div class="sexbtn" data-sex="2">Medium</div>
       <div class="sexbtn" data-sex="3">Intense</div>
@@ -260,6 +260,11 @@ function render(d){
                              document.getElementById(v).textContent=commas(n); };
     cbar("zCThroat","vCThroat",ct); cbar("zCVag","vCVag",cv); cbar("zCAnal","vCAnal",ca);
   }
+
+  // Sex mode — only when Lovense (haptics) is enabled
+  var lov = (+d.hp === 1);
+  document.getElementById("sexRow").style.display   = lov ? "" : "none";
+  document.getElementById("sexState").style.display = lov ? "" : "none";
 
   // CORRUPTION
   document.getElementById("badge").textContent  = (pr>0?roman(pr):"0");
