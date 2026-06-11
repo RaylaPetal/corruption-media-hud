@@ -186,6 +186,7 @@
     <div class="goal"><div class="gr"><span>Loads</span><b id="wlVal">0 / 0</b></div><div class="bar barG"><i id="wlFill"></i></div></div>
 
     <div class="achbtn" id="achBtn">Achievements<small id="achCount">0 / 27 unlocked</small></div>
+    <div class="achbtn" id="ownBtn" style="display:none">💞 My Owner<small id="ownName">—</small></div>
   </div>
 
 </div>
@@ -288,6 +289,11 @@ function render(d){
   goal("wxVal","wxFill",+d.wx, WEEKLY_GOAL); goal("wpVal","wpFill",+d.wp, WEEKLY_PART); goal("wlVal","wlFill",+d.wl, WEEKLY_LOAD);
   document.getElementById("achCount").textContent = countBits(d.ac)+" / "+ACH_COUNT+" unlocked";
 
+  // Owner button — only when actually owned (ow = owner name)
+  var owned = (d.ow && d.ow.length > 0);
+  document.getElementById("ownBtn").style.display = owned ? "" : "none";
+  if (owned) document.getElementById("ownName").textContent = d.ow;
+
   clockOffset = (+d.nw) - Math.floor(Date.now()/1000);
   tickClocks();
   fitHud();
@@ -317,6 +323,10 @@ setInterval(tickClocks, 1000);
 // Achievements button → ask the LSL to open the achievements panel (link 3).
 document.getElementById("achBtn").addEventListener("click", function(){
   if (gEp) { try { fetch(gEp + "?ach=1", { mode:"no-cors" }); } catch(e){} }
+});
+// Owner button → ask the LSL to open the owner panel (link 4).
+document.getElementById("ownBtn").addEventListener("click", function(){
+  if (gEp) { try { fetch(gEp + "?own=1", { mode:"no-cors" }); } catch(e){} }
 });
 
 // Sex mode — relay the chosen intensity to inm_lovense; highlight the active one.

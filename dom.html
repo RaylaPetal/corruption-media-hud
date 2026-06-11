@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Dominance HUD</title>
+<style>
+  :root{
+    --bg:#0c0506; --panel:#1a0a0c; --panel2:#220d10;
+    --stroke:rgba(220,60,60,0.18); --stroke2:rgba(220,60,60,0.32);
+    --red:#e0303a; --red-br:#ff5a5a; --txt:#f6e9e9; --muted:#a77f82; --gold:#ffce63;
+    --track:#2a1316; --grad:linear-gradient(90deg,#8a1018,#e0303a 60%,#ff6b6b);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden}
+  body{background:var(--bg);font-family:"Segoe UI",Roboto,Arial,sans-serif;color:var(--txt)}
+  .hud{position:absolute;top:0;left:0;width:760px;transform-origin:0 0;container-type:inline-size;
+    padding:2.4cqw;background:var(--bg);display:flex;flex-direction:column;min-height:100cqw}
+  .col{background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--stroke);border-radius:1.6cqw;padding:2.4cqw}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4cqw}
+  .crest{font-size:2.4cqw;font-weight:800;letter-spacing:.2cqw;
+    background:linear-gradient(90deg,var(--red),var(--red-br));-webkit-background-clip:text;
+    background-clip:text;color:transparent}
+  .lv{font-size:1.6cqw;color:var(--muted);font-weight:700}
+  .title{font-size:3.4cqw;font-weight:800;color:var(--red-br);line-height:1.05;margin:.4cqw 0 1.4cqw;
+    text-shadow:0 0 2.4cqw rgba(224,48,58,.5)}
+  .bar{height:1.5cqw;background:var(--track);border-radius:1cqw;overflow:hidden;margin:.6cqw 0}
+  .bar>i{display:block;height:100%;width:0;background:var(--grad);border-radius:1cqw;
+    box-shadow:0 0 1.6cqw rgba(224,48,58,.6);transition:width .5s ease}
+  .xprow{display:flex;justify-content:space-between;font-size:1.4cqw;color:var(--muted)}
+  .sub{font-size:1.3cqw;letter-spacing:.18cqw;color:var(--muted);text-transform:uppercase;
+    margin:2cqw 0 1cqw;border-top:1px solid var(--stroke);padding-top:1.4cqw}
+  .nums{display:flex;gap:1.4cqw}
+  .num{flex:1;text-align:center;background:rgba(255,255,255,.02);border:1px solid var(--stroke);
+    border-radius:1.2cqw;padding:1.4cqw .6cqw}
+  .num .v{font-size:3cqw;font-weight:800;color:#fff;line-height:1}
+  .num .k{font-size:1.1cqw;letter-spacing:.12cqw;color:var(--muted);text-transform:uppercase;margin-top:.4cqw}
+  .line{display:flex;justify-content:space-between;font-size:1.5cqw;color:#d9c2c4;margin:.8cqw 0}
+  .line b{color:var(--red-br);font-weight:700}
+  .achbtn{margin-top:1.8cqw;text-align:center;cursor:pointer;
+    background:linear-gradient(180deg,#3a1014,#1c080a);border:1px solid var(--stroke2);
+    border-radius:1.2cqw;padding:1.4cqw;font-size:1.7cqw;font-weight:700;letter-spacing:.16cqw;
+    color:#f6e9e9;text-transform:uppercase;transition:.15s}
+  .achbtn:hover{border-color:var(--red);box-shadow:0 0 2.4cqw rgba(224,48,58,.45)}
+  .achbtn small{display:block;font-size:1.1cqw;font-weight:600;color:var(--muted);margin-top:.3cqw;text-transform:none}
+</style>
+</head>
+<body>
+<div class="hud">
+  <div class="col">
+    <div class="top">
+      <div class="crest">⚜ DOMINANCE</div>
+      <div class="lv">LV.<span id="lv" style="font-size:2.4cqw;color:#fff">1</span></div>
+    </div>
+    <div class="title" id="title">Curious Hand</div>
+    <div class="bar"><i id="xpFill"></i></div>
+    <div class="xprow"><span id="xpVal">0 / 0 XP</span><span id="xpNext">0 to next</span></div>
+
+    <div class="sub">Conquest</div>
+    <div class="nums">
+      <div class="num"><div class="v" id="nConq">0</div><div class="k">Conquests</div></div>
+      <div class="num"><div class="v" id="nLoads">0</div><div class="k">Loads Sent</div></div>
+      <div class="num"><div class="v" id="nBred">0</div><div class="k">Bred</div></div>
+      <div class="num"><div class="v" id="nInf">0</div><div class="k">Infamy</div></div>
+    </div>
+
+    <div class="sub">This Session</div>
+    <div class="line"><span>Used</span><b id="sConq">0</b></div>
+    <div class="line"><span>Loads delivered</span><b id="sLoads">0</b></div>
+    <div class="line"><span>Subs owned</span><b id="subs">0</b></div>
+
+    <div class="achbtn" id="achBtn">Achievements<small id="achCount">0 / 11 unlocked</small></div>
+    <div class="achbtn" id="ownBtn" style="display:none">⛓ My Sub<small id="ownName">—</small></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+var DESIGN_W = 760, ACH_COUNT = 11, gEp = "", state = null;
+
+function fitHud(){ var w=document.querySelector(".hud"); if(!w) return;
+  w.style.transform = "scale(" + (innerWidth/DESIGN_W) + "," + (innerHeight/(w.offsetHeight||1000)) + ")"; }
+window.addEventListener("resize", fitHud); window.addEventListener("load", fitHud);
+(function(){ var e=document.querySelector(".hud"); if(window.ResizeObserver&&e) new ResizeObserver(fitHud).observe(e); })();
+
+function commas(n){ return (+n||0).toLocaleString(); }
+function pct(c,t){ t=+t; if(t<=0) return 0; var v=100*(+c)/t; if(v<0)v=0; if(v>100)v=100; return v; }
+function countBits(n){ var c=0; n=+n||0; while(n){ c+=n&1; n>>=1; } return c; }
+
+function render(d){
+  state = d;
+  if (d.ep) gEp = d.ep;
+  var xp=+d.xp, lb=+d.lb, lt=+d.lt;
+  document.getElementById("lv").textContent = +d.lv;
+  document.getElementById("title").textContent = (d.ct||"").toString();
+  document.getElementById("xpFill").style.width = pct(xp-lb, lt-lb)+"%";
+  document.getElementById("xpVal").textContent  = commas(xp)+" / "+commas(lt)+" XP";
+  document.getElementById("xpNext").textContent = commas(Math.max(0,lt-xp))+" to next";
+  document.getElementById("nConq").textContent  = commas(d.cq);
+  document.getElementById("nLoads").textContent = commas(d.ls);
+  document.getElementById("nBred").textContent  = commas(d.br);
+  document.getElementById("nInf").textContent   = commas(d.in);
+  document.getElementById("sConq").textContent  = commas(d.sc);
+  document.getElementById("sLoads").textContent = commas(d.sl);
+  document.getElementById("subs").textContent   = commas(d.su);
+  document.getElementById("achCount").textContent = countBits(d.ac)+" / "+ACH_COUNT+" unlocked";
+
+  // My Sub button — only when you own someone (ow = owned sub name)
+  var owned = (d.ow && d.ow.length > 0);
+  document.getElementById("ownBtn").style.display = owned ? "" : "none";
+  if (owned) document.getElementById("ownName").textContent = d.ow;
+
+  fitHud();
+}
+
+function loadHash(){ var h=location.hash.slice(1); if(!h) return;
+  try{ render(JSON.parse(decodeURIComponent(h))); }catch(e){} }
+window.addEventListener("hashchange", loadHash);
+
+document.getElementById("achBtn").addEventListener("click", function(){
+  if (gEp) { try { fetch(gEp + "?ach=1", { mode:"no-cors" }); } catch(e){} }
+});
+document.getElementById("ownBtn").addEventListener("click", function(){
+  if (gEp) { try { fetch(gEp + "?own=1", { mode:"no-cors" }); } catch(e){} }
+});
+
+loadHash();
+fitHud();
+</script>
+</body>
+</html>

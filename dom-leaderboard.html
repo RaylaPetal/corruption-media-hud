@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corruption RPG — Hall of Conquest</title>
+<style>
+  :root{
+    --bg:#0a0406; --panel:#1a0a0c; --panel2:#2a0f12; --line:#4a1c20;
+    --txt:#f7e9ea; --dim:#c88b8b; --accent:#e02a2a; --accent2:#ff5a2a;
+    --gold:#ffd24a; --silver:#cdd6e0; --bronze:#e08a4a;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:"Segoe UI",system-ui,sans-serif; color:var(--txt);
+    background:radial-gradient(120% 80% at 50% -10%,#33100f 0%,var(--bg) 60%);
+    min-height:100vh; padding:24px 14px 60px;
+  }
+  .wrap{max-width:860px; margin:0 auto}
+  header{text-align:center; margin-bottom:18px}
+  h1{
+    margin:0; font-size:30px; letter-spacing:.5px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .sub{color:var(--dim); font-size:13px; margin-top:4px}
+  .tabs{display:flex; gap:8px; justify-content:center; margin:18px 0; flex-wrap:wrap}
+  .tab{
+    border:1px solid var(--line); background:var(--panel); color:var(--dim);
+    padding:9px 16px; border-radius:999px; cursor:pointer; font-size:13px;
+    font-weight:600; transition:.15s; user-select:none;
+  }
+  .tab:hover{color:var(--txt); border-color:var(--accent2)}
+  .tab.on{
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    color:#fff; border-color:transparent;
+  }
+  .board{
+    background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    overflow:hidden; box-shadow:0 18px 50px rgba(0,0,0,.55);
+  }
+  .row{
+    display:grid; grid-template-columns:54px 1fr auto; gap:12px; align-items:center;
+    padding:13px 16px; border-bottom:1px solid rgba(255,255,255,.04);
+  }
+  .row:last-child{border-bottom:0}
+  .row.head{background:var(--panel2); color:var(--dim); font-size:11px;
+    text-transform:uppercase; letter-spacing:.8px; padding:10px 16px}
+  .row:not(.head):nth-child(odd){background:rgba(255,255,255,.015)}
+  .rank{font-weight:800; font-size:18px; text-align:center; color:var(--dim)}
+  .rank.r1{color:var(--gold)} .rank.r2{color:var(--silver)} .rank.r3{color:var(--bronze)}
+  .who{min-width:0}
+  .name{font-weight:700; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .title{color:var(--dim); font-size:12px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .badges{display:flex; gap:6px; margin-top:5px; flex-wrap:wrap}
+  .badge{font-size:10px; padding:2px 7px; border-radius:999px; background:var(--panel2);
+    border:1px solid var(--line); color:var(--dim)}
+  .badge.b{color:var(--accent2); border-color:#5a2410}
+  .metric{text-align:right}
+  .mval{font-size:20px; font-weight:800; color:var(--txt)}
+  .mlbl{font-size:10px; color:var(--dim); text-transform:uppercase; letter-spacing:.6px}
+  .state{text-align:center; color:var(--dim); padding:40px 10px; font-size:14px}
+  footer{text-align:center; color:var(--dim); font-size:11px; margin-top:16px}
+  .refresh{color:var(--accent2); cursor:pointer; text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Hall of Conquest</h1>
+    <div class="sub">Who breaks them hardest — the apex predators</div>
+  </header>
+
+  <div class="tabs" id="viewTabs">
+    <div class="tab on" data-view="dominance">Dominance</div>
+    <div class="tab" data-view="conquests">Conquests</div>
+    <div class="tab" data-view="loads">Loads Given</div>
+    <div class="tab" data-view="bred">Bred</div>
+    <div class="tab" data-view="infamy">Infamy</div>
+  </div>
+
+  <div class="board" id="board">
+    <div class="state">Loading the cruelest…</div>
+  </div>
+
+  <footer>
+    Updated <span id="updated">—</span> · <span class="refresh" id="refresh">refresh</span>
+  </footer>
+</div>
+
+<script>
+const SUPA_URL = "https://nvaxbkqyggwfkowrtekx.supabase.co/rest/v1/doms";
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52YXhia3F5Z2d3Zmtvd3J0ZWt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMTEyMDUsImV4cCI6MjA5NTg4NzIwNX0.-HrF4QK56BCJglhJEr2qNeTkR894RTcpYe6jStg7S_g";
+
+const VIEWS = {
+  dominance: { lbl:"XP",        sort:(a,b)=> (b.level||0)-(a.level||0) || (b.xp||0)-(a.xp||0), val:r=> (r.xp||0).toLocaleString() },
+  conquests: { lbl:"Conquests", sort:(a,b)=> (b.conquests||0)-(a.conquests||0),               val:r=> (r.conquests||0).toLocaleString() },
+  loads:     { lbl:"Loads",     sort:(a,b)=> (b.loads||0)-(a.loads||0),                       val:r=> (r.loads||0).toLocaleString() },
+  bred:      { lbl:"Bred",      sort:(a,b)=> (b.bred||0)-(a.bred||0),                         val:r=> (r.bred||0).toLocaleString() },
+  infamy:    { lbl:"Infamy",    sort:(a,b)=> (b.infamy||0)-(a.infamy||0),                     val:r=> (r.infamy||0).toLocaleString() },
+};
+
+let rows = [];
+let view = "dominance";
+
+function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function rel(t){
+  if(!t) return "—";
+  const d = (Date.now()-new Date(t).getTime())/1000;
+  if(d<60) return "just now";
+  if(d<3600) return Math.floor(d/60)+"m ago";
+  if(d<86400) return Math.floor(d/3600)+"h ago";
+  return Math.floor(d/86400)+"d ago";
+}
+
+function render(){
+  const v = VIEWS[view];
+  const sorted = [...rows].sort(v.sort);
+  const board = document.getElementById("board");
+  if(!sorted.length){ board.innerHTML = '<div class="state">No conquerors here yet. Claim your first.</div>'; return; }
+
+  let html = `<div class="row head"><div class="rank">#</div><div>Dom</div><div class="metric">${v.lbl}</div></div>`;
+  sorted.forEach((r,i)=>{
+    const rk = i+1;
+    const rc = rk<=3 ? " r"+rk : "";
+    const badges = [`<span class="badge">Lv ${r.level||1}</span>`];
+    if(r.bred>0) badges.push(`<span class="badge b">${r.bred} bred</span>`);
+    html += `<div class="row">
+      <div class="rank${rc}">${rk}</div>
+      <div class="who">
+        <div class="name">${esc(r.name)||"Nameless Dom"}</div>
+        <div class="title">${esc(r.title)||"—"}</div>
+        <div class="badges">${badges.join("")}</div>
+      </div>
+      <div class="metric"><div class="mval">${v.val(r)}</div><div class="mlbl">${v.lbl}</div></div>
+    </div>`;
+  });
+  board.innerHTML = html;
+}
+
+async function load(){
+  const board = document.getElementById("board");
+  try{
+    const res = await fetch(`${SUPA_URL}?select=name,xp,level,conquests,loads,bred,infamy,title,updated_at&order=level.desc,xp.desc&limit=200`, {
+      headers:{ apikey:SUPA_KEY, Authorization:"Bearer "+SUPA_KEY }
+    });
+    if(!res.ok) throw new Error(res.status);
+    rows = await res.json();
+    const newest = rows.reduce((m,r)=> r.updated_at>m? r.updated_at:m, "");
+    document.getElementById("updated").textContent = rel(newest);
+    render();
+  }catch(e){
+    board.innerHTML = `<div class="state">Couldn't load the leaderboard (${esc(e.message)}).</div>`;
+  }
+}
+
+document.querySelectorAll("#viewTabs .tab").forEach(t=>{
+  t.addEventListener("click", ()=>{
+    document.querySelectorAll("#viewTabs .tab").forEach(x=>x.classList.remove("on"));
+    t.classList.add("on");
+    view = t.dataset.view;
+    render();
+  });
+});
+document.getElementById("refresh").addEventListener("click", load);
+
+load();
+setInterval(load, 60000);
+</script>
+</body>
+</html>

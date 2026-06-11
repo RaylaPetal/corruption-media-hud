@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Dominance — Achievements</title>
+<style>
+  :root{
+    --bg:#0c0506; --panel:#1a0a0c; --panel2:#220d10;
+    --stroke:rgba(220,60,60,0.18); --stroke2:rgba(220,60,60,0.32);
+    --red:#e0303a; --red-br:#ff5a5a; --txt:#f6e9e9; --muted:#a77f82; --gold:#ffce63;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden}
+  body{background:var(--bg);font-family:"Segoe UI",Roboto,Arial,sans-serif;color:var(--txt)}
+  .wrap{position:absolute;top:0;left:0;width:760px;transform-origin:0 0;container-type:inline-size;
+    padding:2.2cqw;background:var(--bg);display:flex;flex-direction:column;min-height:100cqw}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.8cqw}
+  .ttl{font-size:2.6cqw;font-weight:800;letter-spacing:.2cqw;
+    background:linear-gradient(90deg,var(--red),var(--red-br));-webkit-background-clip:text;
+    background-clip:text;color:transparent}
+  .count{font-size:1.6cqw;color:var(--muted)}
+  .close{cursor:pointer;width:4cqw;height:4cqw;border-radius:50%;border:1px solid var(--stroke2);
+    display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2.4cqw;line-height:1}
+  .close:hover{color:#fff;border-color:var(--red)}
+  .list{display:flex;flex-direction:column;gap:1.4cqw;flex:1}
+  .ach{display:flex;gap:2cqw;align-items:center;min-height:9.2cqw;
+    background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--stroke);border-radius:1.4cqw;padding:1.8cqw 2cqw;opacity:.45;transition:opacity .3s}
+  .ach.on{opacity:1;border-color:var(--stroke2)}
+  .ach.ph{background:none;border-color:transparent;opacity:0}
+  .ico{font-size:4.4cqw;line-height:1;filter:grayscale(1)}
+  .ach.on .ico{filter:none}
+  .meta{flex:1;min-width:0}
+  .nm{font-size:2.2cqw;font-weight:800;color:#fff}
+  .ach.on .nm{color:var(--red-br)}
+  .ds{font-size:1.5cqw;color:var(--muted);margin-top:.4cqw;line-height:1.25}
+  .badge{font-size:1.3cqw;letter-spacing:.14cqw;text-transform:uppercase;font-weight:700;
+    color:var(--muted);white-space:nowrap}
+  .ach.on .badge{color:var(--gold)}
+  .nav{display:flex;align-items:center;justify-content:space-between;margin-top:1.6cqw;
+    padding-top:1.4cqw;border-top:1px solid var(--stroke)}
+  .navbtn{cursor:pointer;font-size:1.8cqw;font-weight:700;color:var(--red-br);
+    padding:.8cqw 2cqw;border:1px solid var(--stroke2);border-radius:1cqw;user-select:none}
+  .navbtn:hover{color:#fff;border-color:var(--red)}
+  .dots{display:flex;gap:1.2cqw}
+  .dot{width:1.4cqw;height:1.4cqw;border-radius:50%;background:var(--stroke2);cursor:pointer}
+  .dot.act{background:var(--red-br)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="ttl">Dominance</div>
+    <div class="count" id="count">0 / 11</div>
+    <div class="close" id="close">&times;</div>
+  </div>
+  <div class="list" id="list"></div>
+  <div class="nav" id="nav">
+    <div class="navbtn" id="prev">&lsaquo; Prev</div>
+    <div class="dots" id="dots"></div>
+    <div class="navbtn" id="next">Next &rsaquo;</div>
+  </div>
+</div>
+
+<script>
+"use strict";
+// bit must match DomRewards.lsl
+var ACHS = [
+  {bit:1,    ico:"🩸", nm:"First Conquest", ds:"Use a sub for the first time. +200"},
+  {bit:2,    ico:"🍆", nm:"Stud",           ds:"Deliver 50 loads. +600"},
+  {bit:4,    ico:"💦", nm:"Breeder",        ds:"Breed 10 times. +800"},
+  {bit:8,    ico:"🏆", nm:"Town Stud",      ds:"Use 25 different subs (lifetime). +1500"},
+  {bit:16,   ico:"😈", nm:"Cruel",          ds:"Reach dominance level 5. +500"},
+  {bit:32,   ico:"👑", nm:"Apex Predator",  ds:"Reach dominance level 10. +1500"},
+  {bit:64,   ico:"🌊", nm:"Prolific",       ds:"Deliver 200 loads. +2000"},
+  {bit:128,  ico:"🐂", nm:"Breeding Bull",  ds:"Breed 50 times. +2500"},
+  {bit:256,  ico:"📣", nm:"Infamous",       ds:"Reach 200 infamy. +1500"},
+  {bit:512,  ico:"⛓️", nm:"Owner",          ds:"Claim your first sub (match system). +1000"},
+  {bit:1024, ico:"🏰", nm:"Harem",          ds:"Own 3 subs at once (match system). +2500"}
+];
+
+var DESIGN_W = 760, PER_PAGE = 6, gEp = "", gAc = 0, gPage = 0;
+function fit(){ var w=document.querySelector(".wrap"); if(!w) return;
+  w.style.transform = "scale(" + (innerWidth/DESIGN_W) + "," + (innerHeight/(w.offsetHeight||1000)) + ")"; }
+window.addEventListener("resize", fit); window.addEventListener("load", fit);
+(function(){ var e=document.querySelector(".wrap"); if(window.ResizeObserver&&e) new ResizeObserver(fit).observe(e); })();
+
+function pageCount(){ return Math.ceil(ACHS.length / PER_PAGE); }
+function draw(){
+  var pages=pageCount(); if(gPage<0)gPage=0; if(gPage>=pages)gPage=pages-1;
+  var got=0,i; for(i=0;i<ACHS.length;i++) if((gAc&ACHS[i].bit)!==0) got++;
+  var h="",start=gPage*PER_PAGE;
+  for(i=start;i<start+PER_PAGE;i++){
+    if(i<ACHS.length){ var a=ACHS[i], on=(gAc&a.bit)!==0;
+      h+='<div class="ach'+(on?' on':'')+'"><div class="ico">'+a.ico+'</div>'
+       +'<div class="meta"><div class="nm">'+a.nm+'</div><div class="ds">'+a.ds+'</div></div>'
+       +'<div class="badge">'+(on?'Unlocked':'Locked')+'</div></div>';
+    } else h+='<div class="ach ph"></div>';
+  }
+  document.getElementById("list").innerHTML=h;
+  document.getElementById("count").textContent=got+" / "+ACHS.length;
+  var dh="",p; for(p=0;p<pages;p++) dh+='<span class="dot'+(p===gPage?' act':'')+'" data-p="'+p+'"></span>';
+  document.getElementById("dots").innerHTML=dh;
+  document.getElementById("prev").style.visibility=gPage>0?"visible":"hidden";
+  document.getElementById("next").style.visibility=gPage<pages-1?"visible":"hidden";
+  fit();
+}
+function render(d){ if(d.ep) gEp=d.ep; gAc=+d.ac||0; draw(); }
+function loadHash(){ var h=location.hash.slice(1); if(!h) return;
+  try{ render(JSON.parse(decodeURIComponent(h))); }catch(e){} }
+window.addEventListener("hashchange", loadHash);
+document.getElementById("prev").addEventListener("click", function(){ gPage--; draw(); });
+document.getElementById("next").addEventListener("click", function(){ gPage++; draw(); });
+document.getElementById("dots").addEventListener("click", function(e){
+  var t=e.target; if(t&&t.getAttribute("data-p")!==null){ gPage=+t.getAttribute("data-p"); draw(); } });
+document.getElementById("close").addEventListener("click", function(){
+  if(gEp){ try{ fetch(gEp+"?ach=0",{mode:"no-cors"}); }catch(e){} } });
+draw(); loadHash(); fit();
+</script>
+</body>
+</html>

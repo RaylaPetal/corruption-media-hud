@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Owned Sub</title>
+<style>
+  :root{
+    --bg:#0a0406; --panel:#1a0a0c; --panel2:#2a0f12;
+    --stroke:rgba(224,48,58,0.20); --red:#e0303a; --red-br:#ff6a4a;
+    --txt:#f7e9ea; --muted:#c88b8b; --track:#2a0f12;
+    --grad:linear-gradient(90deg,#e0202a,#ff5a2a 60%,#ff8a5a); --done:#56d18a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden}
+  body{background:var(--bg);font-family:"Segoe UI",Roboto,Arial,sans-serif;color:var(--txt)}
+  .wrap{position:absolute;top:0;left:0;width:1000px;transform-origin:0 0;
+    container-type:inline-size;padding:2.4cqw}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--stroke);border-radius:1.6cqw;padding:2.6cqw}
+  .top{display:flex;align-items:center;gap:1.4cqw;margin-bottom:1.8cqw}
+  .heart{font-size:4cqw}
+  .who{flex:1}
+  .who .k{font-size:1.3cqw;letter-spacing:.2cqw;color:var(--muted);text-transform:uppercase}
+  .who .n{font-size:3.4cqw;font-weight:800;color:#fff;line-height:1.05}
+  .close{font-size:1.5cqw;color:var(--red-br);border:1px solid var(--stroke);
+    border-radius:1cqw;padding:.8cqw 1.4cqw;cursor:pointer;user-select:none}
+  .sub{font-size:1.4cqw;letter-spacing:.18cqw;color:var(--muted);text-transform:uppercase;
+    margin:1.6cqw 0 1cqw;border-top:1px solid var(--stroke);padding-top:1.4cqw}
+  .task{margin:1.2cqw 0}
+  .trow{display:flex;justify-content:space-between;align-items:baseline;font-size:1.9cqw}
+  .trow .tn{font-weight:700;color:#fff}
+  .trow .tv{font-size:1.6cqw;color:var(--muted)}
+  .trow .tv.done{color:var(--done);font-weight:800}
+  .bar{height:1.3cqw;background:var(--track);border-radius:1cqw;overflow:hidden;margin-top:.7cqw}
+  .bar>i{display:block;height:100%;width:0;background:var(--grad);border-radius:1cqw;transition:width .5s}
+  .bar>i.done{background:linear-gradient(90deg,#3aa869,var(--done))}
+  .empty{color:var(--muted);font-size:1.8cqw;text-align:center;padding:3cqw 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="top">
+      <div class="heart">⛓</div>
+      <div class="who"><div class="k">You own</div><div class="n" id="owner">—</div></div>
+      <div class="close" id="closeBtn">✕ Close</div>
+    </div>
+    <div class="sub">Tasks you set them</div>
+    <div id="tasks"></div>
+  </div>
+</div>
+<script>
+"use strict";
+var gEp = "";
+var LABEL = { serve:"Serve you", breed:"Let you breed them" };
+
+function esc(s){ return (s==null?"":String(s)).replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
+
+function render(d){
+  if (d.ep) gEp = d.ep;
+  document.getElementById("owner").textContent = d.ow || "—";
+  var host = document.getElementById("tasks");
+  var raw = (d.tk||"").split(";").filter(function(s){ return s.length>0; });
+  if (!raw.length){ host.innerHTML = '<div class="empty">No tasks set. Use Owned Sub → Set Task to give them duties.</div>'; return; }
+  var html = "";
+  raw.forEach(function(t){
+    var p = t.split(":");                       // type:count:progress:done
+    var type=p[0], cnt=+p[1]||1, prog=+p[2]||0, done=(+p[3]===1);
+    var lbl = LABEL[type] || type;
+    var pctv = Math.min(100, prog/cnt*100);
+    html += '<div class="task"><div class="trow"><span class="tn">'+esc(lbl)+'</span>'
+          + '<span class="tv'+(done?' done':'')+'">'+(done?'✓ DONE':(prog+' / '+cnt))+'</span></div>'
+          + '<div class="bar"><i class="'+(done?'done':'')+'" style="width:'+pctv+'%"></i></div></div>';
+  });
+  host.innerHTML = html;
+}
+
+function loadHash(){
+  var h = location.hash.slice(1);
+  if(!h) return;
+  try { render(JSON.parse(decodeURIComponent(h))); } catch(e){}
+}
+window.addEventListener("hashchange", loadHash);
+document.getElementById("closeBtn").addEventListener("click", function(){
+  if (gEp) { try { fetch(gEp + "?own=0", { mode:"no-cors" }); } catch(e){} }
+});
+loadHash();
+</script>
+</body>
+</html>
