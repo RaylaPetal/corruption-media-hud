@@ -17,7 +17,8 @@
   .hud{position:absolute;top:0;left:0;width:760px;transform-origin:0 0;container-type:inline-size;
     padding:2.4cqw;background:var(--bg);display:flex;flex-direction:column;min-height:100cqw}
   .col{background:linear-gradient(180deg,var(--panel),var(--panel2));
-    border:1px solid var(--stroke);border-radius:1.6cqw;padding:2.4cqw}
+    border:1px solid var(--stroke);border-radius:1.6cqw;padding:2.4cqw;
+    flex:1;display:flex;flex-direction:column}
   .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4cqw}
   .crest{font-size:2.4cqw;font-weight:800;letter-spacing:.2cqw;
     background:linear-gradient(90deg,var(--red),var(--red-br));-webkit-background-clip:text;
@@ -38,6 +39,8 @@
   .num .k{font-size:1.1cqw;letter-spacing:.12cqw;color:var(--muted);text-transform:uppercase;margin-top:.4cqw}
   .line{display:flex;justify-content:space-between;font-size:1.5cqw;color:#d9c2c4;margin:.8cqw 0}
   .line b{color:var(--red-br);font-weight:700}
+  /* first button gets pushed to the bottom so the panel fills the square face */
+  #achBtn{margin-top:auto}
   .achbtn{margin-top:1.8cqw;text-align:center;cursor:pointer;
     background:linear-gradient(180deg,#3a1014,#1c080a);border:1px solid var(--stroke2);
     border-radius:1.2cqw;padding:1.4cqw;font-size:1.7cqw;font-weight:700;letter-spacing:.16cqw;
