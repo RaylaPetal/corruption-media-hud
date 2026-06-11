@@ -68,7 +68,7 @@
     <div class="sub">This Session</div>
     <div class="line"><span>Used</span><b id="sConq">0</b></div>
     <div class="line"><span>Loads delivered</span><b id="sLoads">0</b></div>
-    <div class="line"><span>Subs owned</span><b id="subs">0</b></div>
+    <div class="line" id="ownLine" style="display:none"><span>Sub owned</span><b id="ownLineName">—</b></div>
 
     <div class="achbtn" id="achBtn">Achievements<small id="achCount">0 / 11 unlocked</small></div>
     <div class="achbtn" id="ownBtn" style="display:none">⛓ My Sub<small id="ownName">—</small></div>
@@ -103,13 +103,16 @@ function render(d){
   document.getElementById("nInf").textContent   = commas(d.in);
   document.getElementById("sConq").textContent  = commas(d.sc);
   document.getElementById("sLoads").textContent = commas(d.sl);
-  document.getElementById("subs").textContent   = commas(d.su);
   document.getElementById("achCount").textContent = countBits(d.ac)+" / "+ACH_COUNT+" unlocked";
 
-  // My Sub button — only when you own someone (ow = owned sub name)
+  // Owned sub — show their name (we only ever own one), and the "My Sub" button.
   var owned = (d.ow && d.ow.length > 0);
-  document.getElementById("ownBtn").style.display = owned ? "" : "none";
-  if (owned) document.getElementById("ownName").textContent = d.ow;
+  document.getElementById("ownLine").style.display = owned ? "" : "none";
+  document.getElementById("ownBtn").style.display  = owned ? "" : "none";
+  if (owned) {
+    document.getElementById("ownLineName").textContent = d.ow;
+    document.getElementById("ownName").textContent = d.ow;
+  }
 
   fitHud();
 }
