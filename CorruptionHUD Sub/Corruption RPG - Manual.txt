@@ -1,0 +1,196 @@
+==============================================
+        CORRUPTION RPG  -  PLAYER MANUAL
+==============================================
+
+A corruption / progression game that layers on top of the Spunked cum system
+and the PA (arousal) system. The more your body is used, the more XP and
+corruption you earn, climbing levels, titles, prestige ranks and a public
+leaderboard. Everything is tracked automatically while you wear the HUD.
+
+----------------------------------------------
+ GETTING STARTED
+----------------------------------------------
+- Wear the Corruption RPG HUD. It works alongside your Spunked system.
+- A small circle button stays on screen. CLICK IT to expand or collapse the
+  full HUD panel, so it only takes space when you want it.
+- Progress is saved automatically and backed up to the cloud (used for the
+  leaderboard and to restore your stats on a new copy / after an update).
+- Touch the system (or use its menu) to change settings: title, display,
+  difficulty, rotate speed, lock, prestige, cum system, and the leaderboard.
+
+----------------------------------------------
+ EARNING XP
+----------------------------------------------
+You gain XP whenever your body is used (a Spunked "load") in any zone:
+  - Face / throat
+  - Chest
+  - Pussy (groin)
+  - Ass
+  - Body (back, arms, legs)
+  - Creampie (counts as a filled pussy + extra value)
+Orgasms also grant XP (with diminishing returns each orgasm in a session).
+
+The XP for each load is multiplied by several live bonuses that STACK. Your
+current total multiplier is shown on the HUD as "x2.4 XP" next to your level.
+
+XP MULTIPLIERS (they multiply together):
+  - Arousal:   the hornier you are, the more XP. Highest mid-act (closeness).
+  - Audience:  +10% per person watching nearby (up to +100%).
+  - Prestige:  +10% per prestige rank, PERMANENT (carries through resets).
+  - Combo:     +10% for each EXTRA different partner in the current session
+               (up to +100%) - reward for group / public play.
+  - In Heat:   1.5x XP while the "In Heat" buff is active (see below).
+
+EDGING PAYOFF (Relief):
+  The first time you're used in an act, you get bonus "Relief" XP based on how
+  built-up your arousal was - so letting yourself get needy before hooking up
+  pays off. It only triggers once per act (an act ends after ~30 min with no
+  activity), so repeated loads in the same scene don't farm it.
+
+----------------------------------------------
+ LEVELS & TITLES
+----------------------------------------------
+- Levels 1 through 10 each need more XP than the last.
+- Past level 10 you keep leveling endlessly (a fixed amount of XP per level).
+- Each level unlocks a TITLE you can choose from the menu, from "Innocent One"
+  up to "Cum Dumpster".
+- Your current title shows on your floating text and on the HUD.
+
+----------------------------------------------
+ CORRUPTION & PRESTIGE
+----------------------------------------------
+- Your total XP builds toward a Prestige goal.
+- At level 10 you can PRESTIGE: your level and XP reset to 1, but you gain a
+  permanent +10% XP bonus (stacking each prestige) and a prestige rank shown
+  as a roman numeral (I - X) on your title.
+- Prestige caps at rank X (10).
+- PRESTIGE TITLES: special exclusive titles unlock at prestige thresholds and
+  are never lost to the level reset:
+      Eternal Cumslut   - Prestige I
+      Legendary Whore   - Prestige III
+      Goddess of Filth  - Prestige VI
+      Immortal Cumdump  - Prestige X
+
+----------------------------------------------
+ AROUSAL (PA) & "IN HEAT"
+----------------------------------------------
+- Arousal fills from 0 to 400; after that, continued stimulation builds
+  "closeness" toward an orgasm.
+- DENIAL BUILDUP: even with no activity, arousal slowly rises on its own. It
+  climbs faster the more corrupted you are, the messier you are, and the more
+  people are watching. The longer you go unused, the higher it climbs - but
+  passive arousal alone NEVER finishes you; only a real act can.
+- HEAT EVENTS: occasionally a wave of heat hits you, spiking arousal and
+  granting the "In Heat" buff.
+- IN HEAT BUFF: 1.5x XP for 30 minutes. Triggered by a heat event OR a
+  creampie. Shown on the HUD with a countdown.
+
+----------------------------------------------
+ NOTORIETY (REPUTATION)
+----------------------------------------------
+- Being used in PUBLIC, with people watching, builds Notoriety - a separate
+  reputation score from XP.
+- It's counted once per act (based on how many were watching), so it grows
+  through repeated public scenes rather than spamming on every load.
+- Notoriety has its own leaderboard ranking.
+
+----------------------------------------------
+ ACHIEVEMENTS
+----------------------------------------------
+One-time unlocks that also grant XP. View them in the Achievements panel
+(open it from the HUD). Current achievements:
+  First Creampie  - take a creampie ...................... +200 XP
+  All Holes Used  - pussy, ass and throat in one session . +500 XP
+  Exhibitionist   - used with 5+ people watching ......... +600 XP
+  Head to Toe     - all five zones in one session ........ +800 XP
+  Town Toy        - used by 25 different partners ........ +1500 XP
+  First Prestige  - prestige for the first time ......... +1000 XP
+  Prestige V      - reach prestige rank V ............... +3000 XP
+  Max Prestige    - reach prestige rank X ............... +6000 XP
+
+----------------------------------------------
+ MILESTONES
+----------------------------------------------
+Bigger one-shot goals with large XP rewards (also shown in the panel):
+  Gangbang      - 3 different partners in one session .... +1000 XP
+  Soaked        - 12 loads in one session ................ +1200 XP
+  Local Legend  - reach 200 Notoriety .................... +1500 XP
+
+----------------------------------------------
+ DAILY & WEEKLY GOALS
+----------------------------------------------
+- Daily goal: earn 2000 XP in a day for a +1000 XP bonus.
+- Weekly goal: earn 10000 XP in a week for a +5000 XP bonus.
+- There is a daily XP cap (10000) on normal earned XP, so you can't grind it
+  all at once. Bonus rewards (achievements, milestones, goals) ignore the cap.
+- Progress bars for both show on the HUD.
+
+----------------------------------------------
+ DECAY (USE IT OR LOSE IT)
+----------------------------------------------
+- If you go too long without being used, you start slowly LOSING XP over time.
+- How long you can idle before decay depends on your difficulty.
+- This keeps you motivated to stay active (and your denial arousal keeps
+  rising, nudging you to go find someone).
+
+----------------------------------------------
+ DIFFICULTY
+----------------------------------------------
+Set from the menu. Difficulty changes how forgiving the game is:
+  Tease   - easiest: long grace before decay, highest XP per act.
+  Naughty - normal balance.
+  Slut    - hardest: short grace before decay, lower XP per act.
+  Custom  - set your own grace period (hours) and XP multiplier.
+Difficulty can't be changed while the system is locked.
+
+----------------------------------------------
+ STATS TRACKED
+----------------------------------------------
+On the HUD you can see:
+  - Level, XP, and current multiplier
+  - Partners (unique people who've used you) and Loads (total)
+  - Bred (creampies) and your Favorite Hole
+  - Per-zone load bars: Pussy / Ass / Face / Chest / Body
+  - Prestige rank, title, corruption progress
+  - Daily / Weekly goal bars
+  - Notoriety
+  - Timers: time since last use, and time until decay
+
+----------------------------------------------
+ CLEANING UP
+----------------------------------------------
+- Cleaning your body (via Spunked) clears your CURRENT mess and resets the
+  SESSION stats (session partners, the combo multiplier, session zones).
+- Lifetime stats (total partners, loads, XP, notoriety, achievements) are
+  kept forever.
+
+----------------------------------------------
+ LOCK (RLV)
+----------------------------------------------
+- You can LOCK the system from the menu. While locked, core settings can't be
+  changed and an RLV detach restriction is applied (you can't take it off).
+- You can't unlock while there's still cum on your body - clean up first.
+
+----------------------------------------------
+ LEADERBOARD
+----------------------------------------------
+- From the menu, choose "Leaderboard" then "Open Link" to view the live web
+  leaderboard in your browser.
+- Rankings include: Corruption (prestige + XP), Most Loads, Most Partners,
+  and Notoriety.
+
+----------------------------------------------
+ SAVING, UPDATES & RESTORING
+----------------------------------------------
+- Your progress is stored locally on the HUD and backed up to the cloud.
+- If you get a NEW copy (an update or replacement), it automatically restores
+  your saved stats from the cloud by your avatar key.
+- Note: the cloud backup is your last SAVED state, so very recent progress
+  (since the last save) may not carry over to a brand-new copy.
+- Resetting your stats from the menu wipes everything (local and cloud) and
+  cannot be undone.
+
+==============================================
+ Have fun getting corrupted. The more you're
+ used, the further you fall.
+==============================================
