@@ -93,7 +93,7 @@ const SUPA_URL = "https://nvaxbkqyggwfkowrtekx.supabase.co/rest/v1/doms";
 const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52YXhia3F5Z2d3Zmtvd3J0ZWt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMTEyMDUsImV4cCI6MjA5NTg4NzIwNX0.-HrF4QK56BCJglhJEr2qNeTkR894RTcpYe6jStg7S_g";
 
 const VIEWS = {
-  dominance: { lbl:"XP",        sort:(a,b)=> (b.level||0)-(a.level||0) || (b.xp||0)-(a.xp||0), val:r=> (r.xp||0).toLocaleString() },
+  dominance: { lbl:"XP",        sort:(a,b)=> (b.prestige||0)-(a.prestige||0) || (b.level||0)-(a.level||0) || (b.xp||0)-(a.xp||0), val:r=> (r.xp||0).toLocaleString() },
   conquests: { lbl:"Conquests", sort:(a,b)=> (b.conquests||0)-(a.conquests||0),               val:r=> (r.conquests||0).toLocaleString() },
   loads:     { lbl:"Loads",     sort:(a,b)=> (b.loads||0)-(a.loads||0),                       val:r=> (r.loads||0).toLocaleString() },
   bred:      { lbl:"Bred",      sort:(a,b)=> (b.bred||0)-(a.bred||0),                         val:r=> (r.bred||0).toLocaleString() },
@@ -124,6 +124,7 @@ function render(){
     const rk = i+1;
     const rc = rk<=3 ? " r"+rk : "";
     const badges = [`<span class="badge">Lv ${r.level||1}</span>`];
+    if(r.prestige>0) badges.push(`<span class="badge b">Prestige ${r.prestige}</span>`);
     if(r.bred>0) badges.push(`<span class="badge b">${r.bred} bred</span>`);
     html += `<div class="row">
       <div class="rank${rc}">${rk}</div>
@@ -141,7 +142,7 @@ function render(){
 async function load(){
   const board = document.getElementById("board");
   try{
-    const res = await fetch(`${SUPA_URL}?select=name,xp,level,conquests,loads,bred,infamy,title,updated_at&order=level.desc,xp.desc&limit=200`, {
+    const res = await fetch(`${SUPA_URL}?select=name,xp,level,prestige,conquests,loads,bred,infamy,title,updated_at&order=prestige.desc,level.desc,xp.desc&limit=200`, {
       headers:{ apikey:SUPA_KEY, Authorization:"Bearer "+SUPA_KEY }
     });
     if(!res.ok) throw new Error(res.status);
