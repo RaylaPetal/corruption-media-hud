@@ -122,10 +122,10 @@ function loadHash(){ var h=location.hash.slice(1); if(!h) return;
 window.addEventListener("hashchange", loadHash);
 
 document.getElementById("achBtn").addEventListener("click", function(){
-  if (gEp) { try { fetch(gEp + "?ach=1", { mode:"no-cors" }); } catch(e){} }
+  if (gEp) { try { fetch(gEp + "?dach=1", { mode:"no-cors" }); } catch(e){} }
 });
 document.getElementById("ownBtn").addEventListener("click", function(){
-  if (gEp) { try { fetch(gEp + "?own=1", { mode:"no-cors" }); } catch(e){} }
+  if (gEp) { try { fetch(gEp + "?down=1", { mode:"no-cors" }); } catch(e){} }
 });
 
 loadHash();
