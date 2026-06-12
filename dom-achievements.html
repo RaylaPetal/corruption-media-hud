@@ -90,7 +90,7 @@ var ACHS = [
   {bit:1048576, ico:"🌟", nm:"Living Legend", ds:"Reach dominance level 20. +5000"}
 ];
 
-var DESIGN_W = 760, PER_PAGE = 6, gEp = "", gAc = 0, gPage = 0;
+var DESIGN_W = 760, PER_PAGE = 10, gEp = "", gAc = 0, gPage = 0;
 function fit(){ var w=document.querySelector(".wrap"); if(!w) return;
   w.style.transform = "scale(" + (innerWidth/DESIGN_W) + "," + (innerHeight/(w.offsetHeight||1000)) + ")"; }
 window.addEventListener("resize", fit); window.addEventListener("load", fit);
