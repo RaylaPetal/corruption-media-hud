@@ -38,6 +38,11 @@
   .num .k{font-size:1.1cqw;letter-spacing:.12cqw;color:var(--muted);text-transform:uppercase;margin-top:.4cqw}
   .line{display:flex;justify-content:space-between;font-size:1.5cqw;color:#d9c2c4;margin:.8cqw 0}
   .line b{color:var(--red-br);font-weight:700}
+  .goal{margin:.7cqw 0}
+  .gr{display:flex;justify-content:space-between;font-size:1.3cqw;color:#d9c2c4}
+  .gr b{color:var(--gold);font-weight:700}
+  .gbar{height:1.1cqw;background:var(--track);border-radius:1cqw;overflow:hidden;margin-top:.4cqw}
+  .gbar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#caa23a,var(--gold));border-radius:1cqw;transition:width .5s}
   .sexrow{display:flex;gap:1.4cqw;margin:1.2cqw 0 .6cqw}
   .sexbtn{width:7.4cqw;height:7.4cqw;border-radius:50%;display:flex;align-items:center;
     justify-content:center;text-align:center;font-size:1.15cqw;font-weight:700;
@@ -82,6 +87,15 @@
     <div class="line"><span>Loads delivered</span><b id="sLoads">0</b></div>
     <div class="line" id="ownLine" style="display:none"><span>Sub owned</span><b id="ownLineName">—</b></div>
 
+    <div class="sub">Daily Goals</div>
+    <div class="goal"><div class="gr"><span>Conquests</span><b id="dcVal">0 / 0</b></div><div class="gbar"><i id="dcFill"></i></div></div>
+    <div class="goal"><div class="gr"><span>Loads</span><b id="dlVal">0 / 0</b></div><div class="gbar"><i id="dlFill"></i></div></div>
+    <div class="goal"><div class="gr"><span>Bred</span><b id="dbVal">0 / 0</b></div><div class="gbar"><i id="dbFill"></i></div></div>
+    <div class="sub">Weekly Goals</div>
+    <div class="goal"><div class="gr"><span>Conquests</span><b id="wcVal">0 / 0</b></div><div class="gbar"><i id="wcFill"></i></div></div>
+    <div class="goal"><div class="gr"><span>Loads</span><b id="wlVal">0 / 0</b></div><div class="gbar"><i id="wlFill"></i></div></div>
+    <div class="goal"><div class="gr"><span>Bred</span><b id="wbVal">0 / 0</b></div><div class="gbar"><i id="wbFill"></i></div></div>
+
     <div class="sexrow" id="sexRow" style="display:none">
       <div class="sexbtn" data-sex="1">Slow</div>
       <div class="sexbtn" data-sex="2">Medium</div>
@@ -89,14 +103,14 @@
     </div>
     <div class="sexstate" id="sexState" style="display:none">Thrust Mode: Off</div>
 
-    <div class="achbtn" id="achBtn">Achievements<small id="achCount">0 / 11 unlocked</small></div>
+    <div class="achbtn" id="achBtn">Achievements<small id="achCount">0 / 21 unlocked</small></div>
     <div class="achbtn" id="ownBtn" style="display:none">⛓ My Sub<small id="ownName">—</small></div>
   </div>
 </div>
 
 <script>
 "use strict";
-var DESIGN_W = 760, ACH_COUNT = 11, gEp = "", state = null;
+var DESIGN_W = 760, ACH_COUNT = 21, gEp = "", state = null;
 
 function fitHud(){ var w=document.querySelector(".hud"); if(!w) return;
   w.style.transform = "scale(" + (innerWidth/DESIGN_W) + "," + (innerHeight/(w.offsetHeight||1000)) + ")"; }
@@ -106,6 +120,9 @@ window.addEventListener("resize", fitHud); window.addEventListener("load", fitHu
 function commas(n){ return (+n||0).toLocaleString(); }
 function pct(c,t){ t=+t; if(t<=0) return 0; var v=100*(+c)/t; if(v<0)v=0; if(v>100)v=100; return v; }
 function countBits(n){ var c=0; n=+n||0; while(n){ c+=n&1; n>>=1; } return c; }
+function goal(id, cur, tgt){ cur=+cur||0;
+  document.getElementById(id+"Val").textContent = commas(cur)+" / "+commas(tgt);
+  document.getElementById(id+"Fill").style.width = pct(cur,tgt)+"%"; }
 
 function render(d){
   state = d;
@@ -115,7 +132,11 @@ function render(d){
   document.getElementById("title").textContent = (d.ct||"").toString();
   document.getElementById("xpFill").style.width = pct(xp-lb, lt-lb)+"%";
   document.getElementById("xpVal").textContent  = commas(xp)+" / "+commas(lt)+" XP";
-  document.getElementById("xpNext").textContent = commas(Math.max(0,lt-xp))+" to next";
+  var mx = (+d.mx||100)/100;
+  var tip = commas(Math.max(0,lt-xp))+" to next";
+  if (mx > 1.05) tip += "  ·  ×"+mx.toFixed(1)+" XP";
+  if ((+d.cb||0) > 1) tip += "  🔥"+(+d.cb);
+  document.getElementById("xpNext").textContent = tip;
   document.getElementById("nConq").textContent  = commas(d.cq);
   document.getElementById("nLoads").textContent = commas(d.ls);
   document.getElementById("nBred").textContent  = commas(d.br);
@@ -124,13 +145,17 @@ function render(d){
   document.getElementById("sLoads").textContent = commas(d.sl);
   document.getElementById("achCount").textContent = countBits(d.ac)+" / "+ACH_COUNT+" unlocked";
 
+  // Daily / weekly goals (targets match DomRewards thresholds)
+  goal("dc", +d.dc, 2);  goal("dl", +d.dl, 10); goal("db", +d.db, 1);
+  goal("wc", +d.wc, 10); goal("wl", +d.wl, 50); goal("wb", +d.wb, 5);
+
   // Owned sub — show their name (we only ever own one), and the "My Sub" button.
   var owned = (d.ow && d.ow.length > 0);
   document.getElementById("ownLine").style.display = owned ? "" : "none";
   document.getElementById("ownBtn").style.display  = owned ? "" : "none";
   if (owned) {
-    document.getElementById("ownLineName").textContent = d.ow;
-    document.getElementById("ownName").textContent = d.ow;
+    document.getElementById("ownLineName").textContent = d.ow + " · Bond Lv." + (+d.rl||1);
+    document.getElementById("ownName").textContent = d.ow + " · Bond Lv." + (+d.rl||1);
   }
 
   // Thrust (sex) mode — only when Lovense is enabled (hp)

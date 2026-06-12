@@ -25,6 +25,10 @@
   .who .n{font-size:2.8cqw;font-weight:800;color:#fff;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .close{font-size:1.3cqw;color:var(--red-br);border:1px solid var(--stroke);
     border-radius:.9cqw;padding:.7cqw 1.2cqw;cursor:pointer;user-select:none;white-space:nowrap}
+  .bond{display:flex;align-items:center;gap:1.2cqw;margin-top:1.2cqw}
+  .bond .bk{font-size:1.5cqw;font-weight:800;color:var(--red-br);white-space:nowrap}
+  .bbar{flex:1;height:1.1cqw;background:var(--track);border-radius:1cqw;overflow:hidden}
+  .bbar>i{display:block;height:100%;width:0;background:var(--grad);border-radius:1cqw;transition:width .5s}
   .sub{font-size:1.2cqw;letter-spacing:.18cqw;color:var(--muted);text-transform:uppercase;
     margin:1.4cqw 0 1cqw;border-top:1px solid var(--stroke);padding-top:1.1cqw}
   .tasks{display:flex;gap:1.4cqw;flex-wrap:wrap}
@@ -48,6 +52,7 @@
       <div class="who"><div class="k">You own</div><div class="n" id="owner">—</div></div>
       <div class="close" id="closeBtn">✕ Close</div>
     </div>
+    <div class="bond"><span class="bk" id="bondlbl">Bond Lv.1</span><div class="bbar"><i id="bondfill"></i></div></div>
     <div class="sub">Tasks you set them</div>
     <div class="tasks" id="tasks"></div>
   </div>
@@ -67,6 +72,8 @@ function esc(s){ return (s==null?"":String(s)).replace(/[&<>]/g, function(c){ re
 function render(d){
   if (d.ep) gEp = d.ep;
   document.getElementById("owner").textContent = d.ow || "—";
+  document.getElementById("bondlbl").textContent = "Bond Lv." + (+d.rl||1);
+  document.getElementById("bondfill").style.width = Math.max(0,Math.min(100,+d.rp||0)) + "%";
   var host = document.getElementById("tasks");
   var raw = (d.tk||"").split(";").filter(function(s){ return s.length>0; });
   if (!raw.length){ host.innerHTML = '<div class="empty">No tasks set. Use Owned Sub → Set Task to give them duties.</div>'; fitHud(); return; }
