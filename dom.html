@@ -38,6 +38,18 @@
   .num .k{font-size:1.1cqw;letter-spacing:.12cqw;color:var(--muted);text-transform:uppercase;margin-top:.4cqw}
   .line{display:flex;justify-content:space-between;font-size:1.5cqw;color:#d9c2c4;margin:.8cqw 0}
   .line b{color:var(--red-br);font-weight:700}
+  .sexrow{display:flex;gap:1.4cqw;margin:1.2cqw 0 .6cqw}
+  .sexbtn{width:7.4cqw;height:7.4cqw;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;text-align:center;font-size:1.15cqw;font-weight:700;
+    letter-spacing:.05cqw;text-transform:uppercase;cursor:pointer;color:#e7c9cc;line-height:1.1;
+    background:radial-gradient(circle at 50% 38%,#3a1014,#1c080a 72%);
+    border:.4cqw solid #4a1c20;transition:.15s}
+  .sexbtn:hover{border-color:var(--red);box-shadow:0 0 1.8cqw rgba(224,48,58,.5)}
+  .sexbtn.on{color:#fff;border-color:var(--red-br);
+    background:radial-gradient(circle at 50% 38%,#e0303a,#4a0f12 72%);
+    box-shadow:0 0 2.6cqw rgba(224,48,58,.8)}
+  .sexstate{font-size:1.25cqw;font-weight:700;letter-spacing:.1cqw;color:var(--muted);text-transform:uppercase}
+  .sexstate.on{color:var(--red-br)}
   .achbtn{margin-top:1.8cqw;text-align:center;cursor:pointer;
     background:linear-gradient(180deg,#3a1014,#1c080a);border:1px solid var(--stroke2);
     border-radius:1.2cqw;padding:1.4cqw;font-size:1.7cqw;font-weight:700;letter-spacing:.16cqw;
@@ -69,6 +81,13 @@
     <div class="line"><span>Used</span><b id="sConq">0</b></div>
     <div class="line"><span>Loads delivered</span><b id="sLoads">0</b></div>
     <div class="line" id="ownLine" style="display:none"><span>Sub owned</span><b id="ownLineName">—</b></div>
+
+    <div class="sexrow" id="sexRow" style="display:none">
+      <div class="sexbtn" data-sex="1">Slow</div>
+      <div class="sexbtn" data-sex="2">Medium</div>
+      <div class="sexbtn" data-sex="3">Intense</div>
+    </div>
+    <div class="sexstate" id="sexState" style="display:none">Thrust Mode: Off</div>
 
     <div class="achbtn" id="achBtn">Achievements<small id="achCount">0 / 11 unlocked</small></div>
     <div class="achbtn" id="ownBtn" style="display:none">⛓ My Sub<small id="ownName">—</small></div>
@@ -114,8 +133,33 @@ function render(d){
     document.getElementById("ownName").textContent = d.ow;
   }
 
+  // Thrust (sex) mode — only when Lovense is enabled (hp)
+  var lov = (+d.hp === 1);
+  document.getElementById("sexRow").style.display   = lov ? "" : "none";
+  document.getElementById("sexState").style.display = lov ? "" : "none";
+
   fitHud();
 }
+
+var curSex = 0;
+var SEXLBL = ["Off","Slow","Medium","Intense"];
+function setSex(n){
+  curSex = n;
+  var btns = document.querySelectorAll(".sexbtn"), i;
+  for(i=0;i<btns.length;i++) btns[i].classList.toggle("on", (+btns[i].getAttribute("data-sex"))===n);
+  var ss = document.getElementById("sexState");
+  ss.textContent = "Thrust Mode: " + SEXLBL[n];
+  ss.classList.toggle("on", n>0);
+}
+(function(){
+  var btns = document.querySelectorAll(".sexbtn"), i;
+  for(i=0;i<btns.length;i++) btns[i].addEventListener("click", function(){
+    var n = +this.getAttribute("data-sex");
+    if (n === curSex) n = 0;                         // click active → off
+    setSex(n);
+    if (gEp) { try { fetch(gEp + "?dsex=" + n, { mode:"no-cors" }); } catch(e){} }
+  });
+})();
 
 function loadHash(){ var h=location.hash.slice(1); if(!h) return;
   try{ render(JSON.parse(decodeURIComponent(h))); }catch(e){} }
