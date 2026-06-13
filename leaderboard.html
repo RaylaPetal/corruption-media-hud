@@ -3,184 +3,220 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Corruption RPG — Leaderboard</title>
+<title>Corruption RPG — Leaderboards</title>
 <style>
   :root{
-    --bg:#0d0710; --panel:#1a0f1f; --panel2:#241430; --line:#3a2147;
-    --txt:#f3e9f7; --dim:#b48bc8; --accent:#e0489c; --accent2:#9b4dff;
+    --bg:#0a0712; --panel:#160f1e; --panel2:#1e1428; --line:#33213f;
+    --txt:#f3e9f7; --dim:#a98bbf; --accent:#e0489c; --accent2:#9b4dff;
+    --gradtop:#2a0f33; --glow:rgba(155,77,255,.4);
     --gold:#ffd24a; --silver:#cdd6e0; --bronze:#e08a4a;
   }
+  /* DOM side recolours the same layout crimson */
+  body.dom{
+    --bg:#0a0406; --panel:#170c0e; --panel2:#221013; --line:#42191d;
+    --txt:#f7e9ea; --dim:#c88b8b; --accent:#e0303a; --accent2:#ff5a2a;
+    --gradtop:#33100f; --glow:rgba(224,48,58,.4);
+  }
   *{box-sizing:border-box}
-  body{
-    margin:0; font-family:"Segoe UI",system-ui,sans-serif; color:var(--txt);
-    background:radial-gradient(120% 80% at 50% -10%,#2a0f33 0%,var(--bg) 60%);
-    min-height:100vh; padding:24px 14px 60px;
-  }
-  .wrap{max-width:860px; margin:0 auto}
-  header{text-align:center; margin-bottom:18px}
-  h1{
-    margin:0; font-size:30px; letter-spacing:.5px;
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--txt);
+    background:radial-gradient(120% 80% at 50% -10%, var(--gradtop) 0%,var(--bg) 60%);
+    min-height:100vh;padding:22px 14px 64px;transition:background .3s}
+  .wrap{max-width:900px;margin:0 auto}
+  header{text-align:center;margin-bottom:14px}
+  h1{margin:0;font-size:28px;letter-spacing:.5px;
     background:linear-gradient(90deg,var(--accent),var(--accent2));
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-  }
-  .sub{color:var(--dim); font-size:13px; margin-top:4px}
-  .tabs{display:flex; gap:8px; justify-content:center; margin:18px 0}
-  .tab{
-    border:1px solid var(--line); background:var(--panel); color:var(--dim);
-    padding:9px 16px; border-radius:999px; cursor:pointer; font-size:13px;
-    font-weight:600; transition:.15s; user-select:none;
-  }
-  .tab:hover{color:var(--txt); border-color:var(--accent2)}
-  .tab.on{
-    background:linear-gradient(90deg,var(--accent),var(--accent2));
-    color:#fff; border-color:transparent;
-  }
-  .board{
-    background:var(--panel); border:1px solid var(--line); border-radius:16px;
-    overflow:hidden; box-shadow:0 18px 50px rgba(0,0,0,.45);
-  }
-  .row{
-    display:grid; grid-template-columns:54px 1fr auto; gap:12px; align-items:center;
-    padding:13px 16px; border-bottom:1px solid rgba(255,255,255,.04);
-  }
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--dim);font-size:13px;margin-top:3px}
+
+  /* top nav: Subs / Doms */
+  .nav{display:flex;gap:10px;justify-content:center;margin:16px 0 10px}
+  .nav button{flex:0 0 auto;min-width:140px;border:1px solid var(--line);background:var(--panel);
+    color:var(--dim);padding:12px 20px;border-radius:14px;cursor:pointer;font-size:15px;font-weight:800;
+    letter-spacing:.4px;transition:.15s}
+  .nav button:hover{color:var(--txt);border-color:var(--accent2)}
+  .nav button.on{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border-color:transparent;
+    box-shadow:0 8px 24px var(--glow)}
+
+  .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;margin:8px 0}
+  .tabs{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:var(--panel);color:var(--dim);padding:8px 14px;
+    border-radius:999px;cursor:pointer;font-size:12px;font-weight:700;transition:.15s;user-select:none}
+  .tab:hover{color:var(--txt);border-color:var(--accent2)}
+  .tab.on{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+  .search{flex:1 1 220px;max-width:320px}
+  .search input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:999px;
+    color:var(--txt);padding:9px 14px;font-size:13px;outline:none}
+  .search input:focus{border-color:var(--accent2)}
+
+  .stat{text-align:center;color:var(--dim);font-size:12px;margin:6px 0 12px}
+  .stat b{color:var(--txt)}
+
+  .board{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    box-shadow:0 18px 50px rgba(0,0,0,.5)}
+  .row{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;
+    padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04)}
   .row:last-child{border-bottom:0}
-  .row.head{background:var(--panel2); color:var(--dim); font-size:11px;
-    text-transform:uppercase; letter-spacing:.8px; padding:10px 16px}
+  .row.head{background:var(--panel2);color:var(--dim);font-size:11px;text-transform:uppercase;
+    letter-spacing:.8px;padding:10px 16px}
   .row:not(.head):nth-child(odd){background:rgba(255,255,255,.015)}
-  .rank{font-weight:800; font-size:18px; text-align:center; color:var(--dim)}
+  .rank{font-weight:800;font-size:18px;text-align:center;color:var(--dim)}
   .rank.r1{color:var(--gold)} .rank.r2{color:var(--silver)} .rank.r3{color:var(--bronze)}
   .who{min-width:0}
-  .name{font-weight:700; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-  .title{color:var(--dim); font-size:12px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-  .badges{display:flex; gap:6px; margin-top:5px; flex-wrap:wrap}
-  .badge{font-size:10px; padding:2px 7px; border-radius:999px; background:var(--panel2);
-    border:1px solid var(--line); color:var(--dim)}
-  .badge.p{color:var(--gold); border-color:#5a4410}
+  .name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .title{color:var(--dim);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .badges{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+  .badge{font-size:10px;padding:2px 7px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);color:var(--dim)}
+  .badge.hi{color:var(--gold);border-color:#5a4410}
+  .badge.dot{color:#56d18a}
   .metric{text-align:right}
-  .mval{font-size:20px; font-weight:800; color:var(--txt)}
-  .mlbl{font-size:10px; color:var(--dim); text-transform:uppercase; letter-spacing:.6px}
-  .state{text-align:center; color:var(--dim); padding:40px 10px; font-size:14px}
-  footer{text-align:center; color:var(--dim); font-size:11px; margin-top:16px}
-  .refresh{color:var(--accent2); cursor:pointer; text-decoration:underline}
+  .mval{font-size:20px;font-weight:800;color:var(--txt)}
+  .mlbl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px}
+  .state{text-align:center;color:var(--dim);padding:40px 10px;font-size:14px}
+  footer{text-align:center;color:var(--dim);font-size:11px;margin-top:16px}
+  .refresh{color:var(--accent2);cursor:pointer;text-decoration:underline}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>Corruption RPG</h1>
-    <div class="sub">Hall of Depravity — who's furthest gone</div>
+    <h1 id="title">Corruption RPG</h1>
+    <div class="sub" id="tagline">Hall of Depravity — who's furthest gone</div>
   </header>
 
-  <div class="tabs" id="viewTabs">
-    <div class="tab on" data-view="corruption">Corruption</div>
-    <div class="tab" data-view="loads">Most Loads</div>
-    <div class="tab" data-view="partners">Most Partners</div>
-    <div class="tab" data-view="notoriety">Notoriety</div>
+  <div class="nav">
+    <button id="navSub" class="on" onclick="setSide('sub')">😈 Subs</button>
+    <button id="navDom" onclick="setSide('dom')">⚜ Doms</button>
   </div>
 
-  <div class="tabs" id="diffTabs">
-    <div class="tab on" data-diff="all">All</div>
-    <div class="tab" data-diff="0">Tease</div>
-    <div class="tab" data-diff="1">Naughty</div>
-    <div class="tab" data-diff="2">Slut</div>
+  <div class="controls">
+    <div class="tabs" id="viewTabs"></div>
+  </div>
+  <div class="controls">
+    <div class="tabs" id="diffTabs"></div>
+    <div class="search"><input id="q" type="text" placeholder="🔍 Search player…" autocomplete="off"></div>
   </div>
 
-  <div class="board" id="board">
-    <div class="state">Loading the filthiest…</div>
-  </div>
+  <div class="stat" id="stat"></div>
+  <div class="board" id="board"><div class="state">Loading…</div></div>
 
-  <footer>
-    Updated <span id="updated">—</span> · <span class="refresh" id="refresh">refresh</span>
-  </footer>
+  <footer>Updated <span id="updated">—</span> · <span class="refresh" id="refresh">refresh</span></footer>
 </div>
 
 <script>
-const SUPA_URL = "https://nvaxbkqyggwfkowrtekx.supabase.co/rest/v1/players";
-const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52YXhia3F5Z2d3Zmtvd3J0ZWt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMTEyMDUsImV4cCI6MjA5NTg4NzIwNX0.-HrF4QK56BCJglhJEr2qNeTkR894RTcpYe6jStg7S_g";
+const SUPA = "https://nvaxbkqyggwfkowrtekx.supabase.co/rest/v1/";
+const KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52YXhia3F5Z2d3Zmtvd3J0ZWt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMTEyMDUsImV4cCI6MjA5NTg4NzIwNX0.-HrF4QK56BCJglhJEr2qNeTkR894RTcpYe6jStg7S_g";
+const DIFF = ["Tease","Naughty","Slut"];
 
-const VIEWS = {
-  corruption: { lbl:"XP", sort:(a,b)=> (b.prestige||0)-(a.prestige||0) || (b.level||0)-(a.level||0) || (b.xp||0)-(a.xp||0), val:r=> (r.xp||0).toLocaleString() },
-  loads:      { lbl:"Loads",    sort:(a,b)=> (b.loads||0)-(a.loads||0),                 val:r=> (r.loads||0).toLocaleString() },
-  partners:   { lbl:"Partners", sort:(a,b)=> (b.partners||0)-(a.partners||0),           val:r=> (r.partners||0).toLocaleString() },
-  notoriety:  { lbl:"Notoriety",sort:(a,b)=> (b.notoriety||0)-(a.notoriety||0),         val:r=> (r.notoriety||0).toLocaleString() },
+// per-side config: which table, columns, metric views, tagline
+const SIDES = {
+  sub: {
+    table:"players", title:"Corruption RPG", tag:"Hall of Depravity — who's furthest gone",
+    select:"name,xp,level,prestige,partners,loads,notoriety,title,difficulty,updated_at",
+    views:{
+      corruption:{lbl:"XP",        f:r=>+r.xp||0,        sort:(a,b)=>(b.prestige||0)-(a.prestige||0)||(b.level||0)-(a.level||0)||(b.xp||0)-(a.xp||0)},
+      loads:     {lbl:"Loads",     f:r=>+r.loads||0,     sort:(a,b)=>(b.loads||0)-(a.loads||0)},
+      partners:  {lbl:"Partners",  f:r=>+r.partners||0,  sort:(a,b)=>(b.partners||0)-(a.partners||0)},
+      notoriety: {lbl:"Notoriety", f:r=>+r.notoriety||0, sort:(a,b)=>(b.notoriety||0)-(a.notoriety||0)}
+    }, diff:true
+  },
+  dom: {
+    table:"doms", title:"Hall of Conquest", tag:"The apex predators — who breaks them hardest",
+    select:"name,xp,level,prestige,conquests,loads,bred,infamy,title,updated_at",
+    views:{
+      dominance:{lbl:"XP",        f:r=>+r.xp||0,        sort:(a,b)=>(b.prestige||0)-(a.prestige||0)||(b.level||0)-(a.level||0)||(b.xp||0)-(a.xp||0)},
+      conquests:{lbl:"Conquests", f:r=>+r.conquests||0, sort:(a,b)=>(b.conquests||0)-(a.conquests||0)},
+      loads:    {lbl:"Loads",     f:r=>+r.loads||0,     sort:(a,b)=>(b.loads||0)-(a.loads||0)},
+      bred:     {lbl:"Bred",      f:r=>+r.bred||0,      sort:(a,b)=>(b.bred||0)-(a.bred||0)},
+      infamy:   {lbl:"Infamy",    f:r=>+r.infamy||0,    sort:(a,b)=>(b.infamy||0)-(a.infamy||0)}
+    }, diff:false
+  }
 };
 
-let rows = [];
-let view = "corruption";
-let diff = "all";   // "all" or "0".."3" (Tease/Naughty/Slut/Custom)
+let side = "sub", view = "corruption", diff = "all", query = "";
+let cache = { sub:null, dom:null };
 
-function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
-function rel(t){
-  if(!t) return "—";
-  const d = (Date.now()-new Date(t).getTime())/1000;
-  if(d<60) return "just now";
-  if(d<3600) return Math.floor(d/60)+"m ago";
-  if(d<86400) return Math.floor(d/3600)+"h ago";
-  return Math.floor(d/86400)+"d ago";
-}
+function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function rel(t){ if(!t) return "—"; const d=(Date.now()-new Date(t).getTime())/1000;
+  if(d<60)return"just now"; if(d<3600)return Math.floor(d/60)+"m ago"; if(d<86400)return Math.floor(d/3600)+"h ago"; return Math.floor(d/86400)+"d ago"; }
+function active(t){ if(!t) return false; return (Date.now()-new Date(t).getTime()) < 86400000; } // active in last 24h
 
-function render(){
-  const v = VIEWS[view];
-  const base = (diff==="all") ? rows : rows.filter(r=> String(r.difficulty)===diff);
-  const sorted = [...base].sort(v.sort);
-  const board = document.getElementById("board");
-  if(!sorted.length){ board.innerHTML = '<div class="state">No corrupted souls here yet. Be the first.</div>'; return; }
-
-  let html = `<div class="row head"><div class="rank">#</div><div>Player</div><div class="metric">${v.lbl}</div></div>`;
-  sorted.forEach((r,i)=>{
-    const rk = i+1;
-    const rc = rk<=3 ? " r"+rk : "";
-    const badges = [`<span class="badge">Lv ${r.level||1}</span>`];
-    if(r.prestige>0) badges.push(`<span class="badge p">Prestige ${r.prestige}</span>`);
-    html += `<div class="row">
-      <div class="rank${rc}">${rk}</div>
-      <div class="who">
-        <div class="name">${esc(r.name)||"Anonymous Slut"}</div>
-        <div class="title">${esc(r.title)||"—"}</div>
-        <div class="badges">${badges.join("")}</div>
-      </div>
-      <div class="metric"><div class="mval">${v.val(r)}</div><div class="mlbl">${v.lbl}</div></div>
-    </div>`;
+function buildTabs(){
+  const cfg = SIDES[side];
+  const vt = document.getElementById("viewTabs"); vt.innerHTML = "";
+  Object.keys(cfg.views).forEach(k=>{
+    const b=document.createElement("div"); b.className="tab"+(k===view?" on":""); b.textContent=cfg.views[k].lbl;
+    b.onclick=()=>{ view=k; buildTabs(); render(); }; vt.appendChild(b);
   });
-  board.innerHTML = html;
-}
-
-async function load(){
-  const board = document.getElementById("board");
-  try{
-    const res = await fetch(`${SUPA_URL}?select=name,xp,level,prestige,partners,loads,notoriety,title,difficulty,updated_at&order=prestige.desc,xp.desc&limit=200`, {
-      headers:{ apikey:SUPA_KEY, Authorization:"Bearer "+SUPA_KEY }
+  const dt = document.getElementById("diffTabs"); dt.innerHTML="";
+  if(cfg.diff){
+    [["all","All"],["0","Tease"],["1","Naughty"],["2","Slut"]].forEach(([v,lbl])=>{
+      const b=document.createElement("div"); b.className="tab"+(v===diff?" on":""); b.textContent=lbl;
+      b.onclick=()=>{ diff=v; buildTabs(); render(); }; dt.appendChild(b);
     });
-    if(!res.ok) throw new Error(res.status);
-    rows = await res.json();
-    const newest = rows.reduce((m,r)=> r.updated_at>m? r.updated_at:m, "");
-    document.getElementById("updated").textContent = rel(newest);
-    render();
-  }catch(e){
-    board.innerHTML = `<div class="state">Couldn't load the leaderboard (${esc(e.message)}).</div>`;
   }
 }
 
-document.querySelectorAll("#viewTabs .tab").forEach(t=>{
-  t.addEventListener("click", ()=>{
-    document.querySelectorAll("#viewTabs .tab").forEach(x=>x.classList.remove("on"));
-    t.classList.add("on");
-    view = t.dataset.view;
-    render();
-  });
-});
-document.querySelectorAll("#diffTabs .tab").forEach(t=>{
-  t.addEventListener("click", ()=>{
-    document.querySelectorAll("#diffTabs .tab").forEach(x=>x.classList.remove("on"));
-    t.classList.add("on");
-    diff = t.dataset.diff;
-    render();
-  });
-});
-document.getElementById("refresh").addEventListener("click", load);
+function render(){
+  const cfg = SIDES[side], v = cfg.views[view];
+  const board = document.getElementById("board");
+  let rows = cache[side];
+  if(rows===null){ board.innerHTML='<div class="state">Loading…</div>'; return; }
+  if(cfg.diff && diff!=="all") rows = rows.filter(r=>String(r.difficulty)===diff);
+  if(query) rows = rows.filter(r=>(r.name||"").toLowerCase().indexOf(query)>=0);
+  rows = [...rows].sort(v.sort);
 
-load();
-setInterval(load, 60000); // auto-refresh every minute
+  document.getElementById("stat").innerHTML =
+    "<b>"+(cache[side]?cache[side].length:0)+"</b> ranked · showing <b>"+rows.length+"</b>";
+
+  if(!rows.length){ board.innerHTML='<div class="state">'+(query?"No players match \""+esc(query)+"\".":"No one here yet.")+'</div>'; return; }
+
+  let html='<div class="row head"><div class="rank">#</div><div>Player</div><div class="metric">'+v.lbl+'</div></div>';
+  rows.forEach((r,i)=>{
+    const rk=i+1, rc=rk<=3?" r"+rk:"";
+    let badges='<span class="badge">Lv '+(r.level||1)+'</span>';
+    if(r.prestige>0) badges+='<span class="badge hi">Prestige '+r.prestige+'</span>';
+    if(side==="sub" && r.difficulty!=null && DIFF[r.difficulty]) badges+='<span class="badge">'+DIFF[r.difficulty]+'</span>';
+    if(side==="dom" && r.bred>0) badges+='<span class="badge">'+r.bred+' bred</span>';
+    if(active(r.updated_at)) badges+='<span class="badge dot">● active</span>';
+    html+='<div class="row"><div class="rank'+rc+'">'+rk+'</div>'
+      +'<div class="who"><div class="name">'+(esc(r.name)||"Anonymous")+'</div>'
+      +'<div class="title">'+(esc(r.title)||"—")+'</div><div class="badges">'+badges+'</div></div>'
+      +'<div class="metric"><div class="mval">'+v.f(r).toLocaleString()+'</div><div class="mlbl">'+v.lbl+'</div></div></div>';
+  });
+  board.innerHTML=html;
+}
+
+function setSide(s){
+  side=s; view=Object.keys(SIDES[s].views)[0]; diff="all";
+  document.body.classList.toggle("dom", s==="dom");
+  document.getElementById("navSub").classList.toggle("on", s==="sub");
+  document.getElementById("navDom").classList.toggle("on", s==="dom");
+  document.getElementById("title").textContent = SIDES[s].title;
+  document.getElementById("tagline").textContent = SIDES[s].tag;
+  buildTabs(); render();
+  if(cache[s]===null) load(s);
+}
+
+async function load(s){
+  const cfg = SIDES[s];
+  try{
+    const res = await fetch(SUPA+cfg.table+"?select="+cfg.select+"&order=updated_at.desc&limit=300",
+      { headers:{ apikey:KEY, Authorization:"Bearer "+KEY } });
+    if(!res.ok) throw new Error(res.status);
+    cache[s] = await res.json();
+    const newest = cache[s].reduce((m,r)=> r.updated_at>m? r.updated_at:m, "");
+    if(s===side){ document.getElementById("updated").textContent = rel(newest); render(); }
+  }catch(e){
+    if(s===side) document.getElementById("board").innerHTML='<div class="state">Couldn\'t load ('+esc(e.message)+').</div>';
+  }
+}
+
+document.getElementById("q").addEventListener("input", function(){ query=this.value.trim().toLowerCase(); render(); });
+document.getElementById("refresh").addEventListener("click", ()=>{ cache.sub=cache.dom=null; load(side); render(); });
+
+// open the right side from the URL hash (#dom / #sub), default sub
+setSide(location.hash.indexOf("dom")>=0 ? "dom" : "sub");
+setInterval(()=>{ cache[side]=null; load(side); }, 60000);
 </script>
 </body>
 </html>
