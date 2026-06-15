@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Corruption HUD</title>
+<style>
+  :root{
+    --bg:#070710; --panel:#0d0d18; --panel2:#10101e;
+    --stroke:rgba(140,110,210,0.18); --stroke2:rgba(140,110,210,0.30);
+    --pur:#9a6cff; --pur-bright:#b98cff; --txt:#e9e6f5; --muted:#7d7a93;
+    --track:#1b1b2c; --grad:linear-gradient(90deg,#6a3df0,#a96bff 60%,#c79bff);
+    --gold:#ffce63;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden}
+  body{background:var(--bg);font-family:"Segoe UI",Roboto,Arial,sans-serif;
+    color:var(--txt);-webkit-font-smoothing:antialiased}
+
+  /* Authored at a fixed width, then stretch-scaled to fill the prim face. */
+  .hud{position:absolute;top:0;left:0;width:1000px;transform-origin:0 0;
+    container-type:inline-size;
+    display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.4cqw;
+    padding:1.6cqw;background:var(--bg)}
+
+  .col{background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--stroke);border-radius:1.4cqw;padding:1.8cqw 2cqw;
+    display:flex;flex-direction:column}
+  .hd{font-size:1.5cqw;font-weight:700;letter-spacing:.28cqw;color:#cfc7ee;
+    text-transform:uppercase;display:flex;align-items:center;gap:.9cqw;margin-bottom:1.4cqw}
+  .hd::before{content:"";width:.5cqw;height:1.9cqw;background:var(--pur);border-radius:1cqw}
+  .muted{color:var(--muted)}
+
+  /* bars */
+  .bar{height:1.3cqw;background:var(--track);border-radius:1cqw;overflow:hidden;margin-top:.6cqw}
+  .bar>i{display:block;height:100%;width:0;background:var(--grad);border-radius:1cqw;
+    box-shadow:0 0 1.4cqw rgba(160,110,255,.6);transition:width .5s ease}
+  .barG>i{background:linear-gradient(90deg,#caa23a,var(--gold))}
+
+  /* PLAYER */
+  .lvl{display:flex;align-items:baseline;gap:1cqw}
+  .lvl b{font-size:1.6cqw;letter-spacing:.2cqw;color:var(--muted)}
+  .lvl em{font-size:5cqw;font-weight:800;font-style:normal;color:#fff;line-height:1}
+  .xmult{margin-left:auto;align-self:center;font-size:1.9cqw;font-weight:800;color:var(--gold);
+    text-shadow:0 0 1.4cqw rgba(255,200,80,.5);transition:opacity .3s}
+  .xprow{display:flex;justify-content:space-between;font-size:1.4cqw;color:var(--muted);margin-top:.4cqw}
+  .sub{font-size:1.2cqw;letter-spacing:.18cqw;color:var(--muted);text-transform:uppercase;
+    margin:1.8cqw 0 .8cqw;border-top:1px solid var(--stroke);padding-top:1.2cqw}
+  .nums{display:flex;justify-content:space-between;gap:1cqw;margin-bottom:.6cqw}
+  .num{flex:1;text-align:center}
+  .num .v{font-size:2.6cqw;font-weight:800;color:#fff;line-height:1}
+  .num .k{font-size:1.1cqw;letter-spacing:.12cqw;color:var(--muted);text-transform:uppercase;margin-top:.3cqw}
+  .zrow{display:flex;align-items:center;gap:1cqw;margin:.7cqw 0}
+  .zrow .zk{width:13cqw;font-size:1.3cqw;letter-spacing:.1cqw;color:#b9b2cf;text-transform:uppercase}
+  .zrow .zv{width:4cqw;text-align:right;font-size:1.5cqw;font-weight:700;color:#fff}
+  .zrow .bar{flex:1;margin:0}
+
+  /* CORRUPTION */
+  .corr{align-items:center;text-align:center}
+  .emblem{width:13cqw;height:13cqw;border-radius:50%;margin:.5cqw 0 1.2cqw;
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 40%,#2a1d52,#0c0a1c 70%);
+    border:.5cqw solid #2c2150;box-shadow:0 0 4cqw rgba(150,100,255,.35),inset 0 0 2cqw rgba(150,100,255,.25)}
+  .emblem span{font-size:5cqw;font-weight:800;color:#d8c7ff;text-shadow:0 0 2cqw rgba(160,110,255,.8)}
+  .crank{font-size:1.3cqw;letter-spacing:.3cqw;color:var(--muted)}
+  .ctitle{font-size:3.4cqw;font-weight:800;color:var(--pur-bright);line-height:1.05;margin:.4cqw 0 1.2cqw}
+  .cxp{font-size:1.3cqw;color:var(--muted);align-self:stretch;display:flex;justify-content:space-between}
+  .dots{display:flex;gap:.8cqw;margin:1.4cqw 0}
+  .dot{width:1.5cqw;height:1.5cqw;border-radius:50%;background:var(--track);border:1px solid var(--stroke2)}
+  .dot.on{background:radial-gradient(circle,#c79bff,#7a3df0);box-shadow:0 0 1.4cqw rgba(160,110,255,.7)}
+  .tag{font-size:1.3cqw;color:#8e88a8;margin-top:auto;padding-top:1.2cqw}
+  .tag em{color:var(--pur-bright);font-style:normal}
+  .heatpill{font-size:1.3cqw;font-weight:700;letter-spacing:.08cqw;color:#1a0e06;
+    background:linear-gradient(90deg,#ff7a3c,var(--gold));border-radius:1cqw;
+    padding:.6cqw 1.2cqw;margin-bottom:1cqw;box-shadow:0 0 1.8cqw rgba(255,140,60,.55)}
+
+  /* Sex mode — 3 round intensity buttons (relay to the Lovense script) */
+  .sexrow{display:flex;gap:1.4cqw;margin:1.2cqw 0 .6cqw}
+  .sexbtn{width:7.4cqw;height:7.4cqw;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;text-align:center;font-size:1.15cqw;font-weight:700;
+    letter-spacing:.05cqw;text-transform:uppercase;cursor:pointer;color:#cfc7ee;line-height:1.1;
+    background:radial-gradient(circle at 50% 38%,#241a48,#0c0a1c 72%);
+    border:.4cqw solid #2c2150;transition:.15s}
+  .sexbtn:hover{border-color:var(--pur);box-shadow:0 0 1.8cqw rgba(150,100,255,.5)}
+  .sexbtn.on{color:#fff;border-color:var(--pur-bright);
+    background:radial-gradient(circle at 50% 38%,#7a46ff,#2a1150 72%);
+    box-shadow:0 0 2.6cqw rgba(160,110,255,.8)}
+  .sexstate{font-size:1.25cqw;font-weight:700;letter-spacing:.1cqw;color:var(--muted);
+    text-transform:uppercase}
+  .sexstate.on{color:var(--pur-bright)}
+
+  /* PROGRESS */
+  .goal{margin-bottom:1.4cqw}
+  .goal .gr{display:flex;justify-content:space-between;align-items:baseline;
+    font-size:1.3cqw;letter-spacing:.12cqw;color:var(--muted);text-transform:uppercase}
+  .goal .gr b{color:var(--pur-bright);font-weight:700}
+  .clk{display:flex;align-items:center;gap:1.4cqw;margin:.9cqw 0}
+  .clk svg{width:3cqw;height:3cqw;stroke:var(--pur);fill:none;stroke-width:1.6;flex:none}
+  .clk .k{font-size:1.2cqw;letter-spacing:.12cqw;color:var(--muted);text-transform:uppercase}
+  .clk .v{font-size:2.2cqw;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+  .achbtn{margin-top:auto;text-align:center;cursor:pointer;
+    background:linear-gradient(180deg,#2a1d52,#160f30);border:1px solid var(--stroke2);
+    border-radius:1.2cqw;padding:1.2cqw;font-size:1.6cqw;font-weight:700;letter-spacing:.16cqw;
+    color:#e9e6f5;text-transform:uppercase;transition:.15s}
+  .achbtn:hover{border-color:var(--pur);box-shadow:0 0 2.2cqw rgba(150,100,255,.45)}
+  .achbtn small{display:block;font-size:1.1cqw;font-weight:600;color:var(--muted);
+    letter-spacing:.1cqw;margin-top:.3cqw;text-transform:none}
+</style>
+</head>
+<body>
+<div class="hud">
+
+  <!-- ── PLAYER ───────────────────────────── -->
+  <div class="col">
+    <div class="hd">Player</div>
+    <div class="lvl"><b>LV.</b><em id="lvl">1</em><span class="xmult" id="xMult">×1.0 XP</span></div>
+    <div class="bar"><i id="xpFill"></i></div>
+    <div class="xprow"><span id="xpVal">0 / 0 XP</span><span id="xpNext">0 to next</span></div>
+
+    <div class="sub">Debauchery</div>
+    <div class="nums">
+      <div class="num"><div class="v" id="nPart">0</div><div class="k">Partners</div></div>
+      <div class="num"><div class="v" id="nLoads">0</div><div class="k">Loads</div></div>
+      <div class="num"><div class="v" id="nCream">0</div><div class="k">Bred</div></div>
+      <div class="num"><div class="v" id="nNoto">0</div><div class="k">Notoriety</div></div>
+    </div>
+
+    <div class="sub">Where She Takes It</div>
+    <div class="zrow"><span class="zk">Pussy</span><div class="bar"><i id="zPussy"></i></div><span class="zv" id="vPussy">0</span></div>
+    <div class="zrow"><span class="zk">Ass</span><div class="bar"><i id="zAss"></i></div><span class="zv" id="vAss">0</span></div>
+    <div class="zrow"><span class="zk">Face</span><div class="bar"><i id="zFace"></i></div><span class="zv" id="vFace">0</span></div>
+    <div class="zrow"><span class="zk">Chest</span><div class="bar"><i id="zChest"></i></div><span class="zv" id="vChest">0</span></div>
+    <div class="zrow"><span class="zk">Body</span><div class="bar"><i id="zBody"></i></div><span class="zv" id="vBody">0</span></div>
+
+    <div class="sub">Activity</div>
+    <div class="clk">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <div><div class="k">Since Last Use</div><div class="v" id="sinceAct">00:00:00</div></div>
+    </div>
+    <div class="clk">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="3 3"/><path d="M12 7v5l3 2"/></svg>
+      <div><div class="k">Until Decay</div><div class="v" id="idleTimer">00:00:00</div></div>
+    </div>
+  </div>
+
+  <!-- ── CORRUPTION ───────────────────────── -->
+  <div class="col corr">
+    <div class="hd" style="align-self:flex-start">Corruption</div>
+    <div class="emblem"><span id="badge">0</span></div>
+    <div class="crank" id="crank">RANK 0</div>
+    <div class="ctitle" id="ctitle">Innocent One</div>
+    <div class="heatpill" id="heatPill" style="display:none">🔥 In Heat · 1.5× XP · <span id="heatLeft">0m</span></div>
+    <div class="cxp"><span id="cxpVal">0 / 0</span><span>CORRUPTION XP</span></div>
+    <div class="bar"><i id="cxpFill"></i></div>
+    <div class="dots" id="dots"></div>
+    <div class="sexrow" id="sexRow">
+      <div class="sexbtn" data-sex="1">Slow</div>
+      <div class="sexbtn" data-sex="2">Medium</div>
+      <div class="sexbtn" data-sex="3">Intense</div>
+    </div>
+    <div class="sexstate" id="sexState">Sex Mode: Off</div>
+
+    <!-- Creampie breakdown — only shown on INM (Spunked has only vaginal, shown as "Bred") -->
+    <div id="cpSection" style="display:none;align-self:stretch">
+      <div class="sub">Creampies</div>
+      <div class="zrow"><span class="zk">Throat ♥</span><div class="bar barG"><i id="zCThroat"></i></div><span class="zv" id="vCThroat">0</span></div>
+      <div class="zrow"><span class="zk">Pussy ♥</span><div class="bar barG"><i id="zCVag"></i></div><span class="zv" id="vCVag">0</span></div>
+      <div class="zrow"><span class="zk">Anal ♥</span><div class="bar barG"><i id="zCAnal"></i></div><span class="zv" id="vCAnal">0</span></div>
+    </div>
+
+    <div class="tag">Corruption shapes her path.<br><em id="favLine">Favorite hole: —</em></div>
+  </div>
+
+  <!-- ── PROGRESS ─────────────────────────── -->
+  <div class="col">
+    <div class="hd">Progress</div>
+
+    <div class="sub">Daily Goals</div>
+    <div class="goal"><div class="gr"><span>XP</span><b id="dxVal">0 / 0</b></div><div class="bar barG"><i id="dxFill"></i></div></div>
+    <div class="goal"><div class="gr"><span>Partners</span><b id="dpVal">0 / 0</b></div><div class="bar barG"><i id="dpFill"></i></div></div>
+    <div class="goal"><div class="gr"><span>Loads</span><b id="dlVal">0 / 0</b></div><div class="bar barG"><i id="dlFill"></i></div></div>
+
+    <div class="sub">Weekly Goals</div>
+    <div class="goal"><div class="gr"><span>XP</span><b id="wxVal">0 / 0</b></div><div class="bar barG"><i id="wxFill"></i></div></div>
+    <div class="goal"><div class="gr"><span>Partners</span><b id="wpVal">0 / 0</b></div><div class="bar barG"><i id="wpFill"></i></div></div>
+    <div class="goal"><div class="gr"><span>Loads</span><b id="wlVal">0 / 0</b></div><div class="bar barG"><i id="wlFill"></i></div></div>
+
+    <div class="achbtn" id="achBtn">Achievements<small id="achCount">0 / 31 unlocked</small></div>
+    <div class="achbtn" id="ownBtn" style="display:none">💞 My Owner<small id="ownName">—</small></div>
+  </div>
+
+</div>
+
+<script>
+"use strict";
+var TITLES = ["Innocent One","Curious Kitten","Naughty Girl","Slutty","Filthy Slut",
+              "Cum Slut","Depraved Whore","Cock Addict","Mindless Fucktoy","Cum Dumpster"];
+var ROMAN  = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
+// Goal targets — must match inm_monitor
+var DAILY_GOAL = 2000,  DAILY_PART = 2,  DAILY_LOAD = 10;
+var WEEKLY_GOAL = 12000, WEEKLY_PART = 10, WEEKLY_LOAD = 50;
+var ACH_COUNT  = 31;   // all achievements (achFlags bits)
+var PRESTIGE_MAX = 10;
+
+var DESIGN_W = 1000;
+var gEp = "", state = null, clockOffset = 0;
+
+function fitHud(){
+  var hud = document.querySelector(".hud");
+  if (!hud) return;
+  var h = hud.offsetHeight || 600;
+  hud.style.transform = "scale(" + (innerWidth/DESIGN_W) + "," + (innerHeight/h) + ")";
+}
+window.addEventListener("resize", fitHud);
+window.addEventListener("load", fitHud);
+(function(){ var e=document.querySelector(".hud"); if(window.ResizeObserver&&e) new ResizeObserver(fitHud).observe(e); })();
+
+function commas(n){ return Number(n||0).toLocaleString("en-US"); }
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+function roman(n){ if(n>=1&&n<=10) return ROMAN[n-1]; return ""+n; }
+function pct(c,t){ return (t>0 ? clamp(c/t,0,1)*100 : 0); }
+function countBits(n){ var c=0; n=+n||0; while(n){ c+=n&1; n>>=1; } return c; }
+function fmtClock(s){ if(s<0)s=0; s=Math.floor(s);
+  var h=Math.floor(s/3600), m=Math.floor((s%3600)/60), x=s%60;
+  function p(v){return (v<10?"0":"")+v;} return p(h)+":"+p(m)+":"+p(x); }
+
+function render(d){
+  if (d.ep) gEp = d.ep;
+  var xp=+d.xp, lv=+d.lv, pr=+d.pr, lb=+d.lb, lt=+d.lt, pg=+d.pg;
+
+  // PLAYER
+  document.getElementById("lvl").textContent = lv;
+  var mx = (+d.mx || 100) / 100;
+  var xm = document.getElementById("xMult");
+  xm.textContent = "×" + mx.toFixed(1) + " XP";
+  xm.style.opacity = (mx > 1.05) ? "1" : ".45";   // dim when there's no real boost
+  var range=lt-lb, cur=xp-lb;
+  document.getElementById("xpFill").style.width = pct(cur,range)+"%";
+  document.getElementById("xpVal").textContent  = commas(xp)+" / "+commas(lt)+" XP";
+  document.getElementById("xpNext").textContent = commas(Math.max(0,lt-xp))+" to next";
+
+  document.getElementById("nPart").textContent  = commas(d.tp);
+  document.getElementById("nLoads").textContent = commas(d.th);
+  document.getElementById("nCream").textContent = commas(d.cr);
+  document.getElementById("nNoto").textContent  = commas(d.no);
+
+  var zp=+d.zp, za=+d.za, zf=+d.zf, zc=+d.zc, zb=+d.zb;
+  var zmax = Math.max(1, zp, za, zf, zc, zb);
+  function zone(fill,val,n){ document.getElementById(fill).style.width=(n/zmax*100)+"%";
+                             document.getElementById(val).textContent=commas(n); }
+  zone("zPussy","vPussy",zp); zone("zAss","vAss",za); zone("zFace","vFace",zf);
+  zone("zChest","vChest",zc); zone("zBody","vBody",zb);
+
+  // Creampie breakdown — INM only (Spunked: vaginal creampie is the "Bred" stat above)
+  var isInm = (+d.cs === 1);
+  document.getElementById("cpSection").style.display = isInm ? "" : "none";
+  if (isInm){
+    var ct=+d.oc||0, cv=+d.cr||0, ca=+d.nc||0;            // throat, vaginal, anal creampies
+    var cmax=Math.max(1,ct,cv,ca);
+    var cbar=function(f,v,n){ document.getElementById(f).style.width=(n/cmax*100)+"%";
+                             document.getElementById(v).textContent=commas(n); };
+    cbar("zCThroat","vCThroat",ct); cbar("zCVag","vCVag",cv); cbar("zCAnal","vCAnal",ca);
+  }
+
+  // Sex mode — only when Lovense (haptics) is enabled
+  var lov = (+d.hp === 1);
+  document.getElementById("sexRow").style.display   = lov ? "" : "none";
+  document.getElementById("sexState").style.display = lov ? "" : "none";
+
+  // CORRUPTION
+  document.getElementById("badge").textContent  = (pr>0?roman(pr):"0");
+  document.getElementById("crank").textContent  = "RANK "+(pr>0?roman(pr):"0");
+  document.getElementById("ctitle").textContent = (d.ct||"").toUpperCase();
+  if (xp>=pg && pg>0){ document.getElementById("cxpVal").textContent="PRESTIGE READY";
+                       document.getElementById("cxpFill").style.width="100%"; }
+  else { document.getElementById("cxpVal").textContent=commas(xp)+" / "+commas(pg);
+         document.getElementById("cxpFill").style.width=pct(xp,pg)+"%"; }
+
+  var dots=""; var i; for(i=0;i<PRESTIGE_MAX;i++) dots+='<div class="dot'+(i<pr?" on":"")+'"></div>';
+  document.getElementById("dots").innerHTML = dots;
+
+  var fav="—"; if(zp+za+zf>0){ if(zp>=za&&zp>=zf)fav="Pussy"; else if(za>=zf)fav="Ass"; else fav="Throat"; }
+  document.getElementById("favLine").textContent = "Favorite hole: "+fav;
+
+  // PROGRESS — daily/weekly goals (XP, Partners, Loads)
+  function goal(idv,fillv,cur,tgt){ document.getElementById(idv).textContent=commas(cur)+" / "+commas(tgt);
+                                    document.getElementById(fillv).style.width=pct(cur,tgt)+"%"; }
+  goal("dxVal","dxFill",+d.dx, DAILY_GOAL);  goal("dpVal","dpFill",+d.dp, DAILY_PART);  goal("dlVal","dlFill",+d.dl, DAILY_LOAD);
+  goal("wxVal","wxFill",+d.wx, WEEKLY_GOAL); goal("wpVal","wpFill",+d.wp, WEEKLY_PART); goal("wlVal","wlFill",+d.wl, WEEKLY_LOAD);
+  document.getElementById("achCount").textContent = countBits(d.ac)+" / "+ACH_COUNT+" unlocked";
+
+  // Owner button — only when actually owned (ow = owner name)
+  var owned = (d.ow && d.ow.length > 0);
+  document.getElementById("ownBtn").style.display = owned ? "" : "none";
+  if (owned) document.getElementById("ownName").textContent = d.ow + " · Bond Lv." + (+d.rl||1);
+
+  clockOffset = (+d.nw) - Math.floor(Date.now()/1000);
+  tickClocks();
+  fitHud();
+}
+
+function tickClocks(){
+  if(!state) return;
+  var now = Math.floor(Date.now()/1000) + clockOffset;
+  var since = now - (+state.lc);
+  document.getElementById("sinceAct").textContent  = fmtClock(since);
+  document.getElementById("idleTimer").textContent = fmtClock((+state.it) - since);
+  // Live "In Heat" pill: heat expires at (broadcast time + remaining secs)
+  var rem = ((+state.nw) + (+state.ht)) - now;
+  var hp = document.getElementById("heatPill");
+  if (rem > 0) { hp.style.display=""; document.getElementById("heatLeft").textContent = Math.ceil(rem/60)+"m"; }
+  else hp.style.display = "none";
+}
+
+function loadHash(){
+  var h = location.hash.slice(1);
+  if(!h) return;
+  try { state = JSON.parse(decodeURIComponent(h)); render(state); } catch(e){}
+}
+window.addEventListener("hashchange", loadHash);
+setInterval(tickClocks, 1000);
+
+// Achievements button → ask the LSL to open the achievements panel (link 3).
+document.getElementById("achBtn").addEventListener("click", function(){
+  if (gEp) { try { fetch(gEp + "?ach=1", { mode:"no-cors" }); } catch(e){} }
+});
+// Owner button → ask the LSL to open the owner panel (link 4).
+document.getElementById("ownBtn").addEventListener("click", function(){
+  if (gEp) { try { fetch(gEp + "?own=1", { mode:"no-cors" }); } catch(e){} }
+});
+
+// Sex mode — relay the chosen intensity to inm_lovense; highlight the active one.
+// Clicking the already-active button turns it off (sends 0). State is client-side.
+var curSex = 0;
+var SEXLBL = ["Off","Slow","Medium","Intense"];
+function setSex(n){
+  curSex = n;
+  var btns = document.querySelectorAll(".sexbtn"), i;
+  for(i=0;i<btns.length;i++) btns[i].classList.toggle("on", (+btns[i].getAttribute("data-sex"))===n);
+  var ss = document.getElementById("sexState");
+  ss.textContent = "Sex Mode: " + SEXLBL[n];
+  ss.classList.toggle("on", n>0);
+}
+(function(){
+  var btns = document.querySelectorAll(".sexbtn"), i;
+  for(i=0;i<btns.length;i++) btns[i].addEventListener("click", function(){
+    var n = +this.getAttribute("data-sex");
+    if (n === curSex) n = 0;                         // click active → off
+    setSex(n);
+    if (gEp) { try { fetch(gEp + "?sex=" + n, { mode:"no-cors" }); } catch(e){} }
+  });
+})();
+
+loadHash();
+fitHud();
+</script>
+</body>
+</html>
