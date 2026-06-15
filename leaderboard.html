@@ -11,12 +11,6 @@
     --gradtop:#2a0f33; --glow:rgba(155,77,255,.4);
     --gold:#ffd24a; --silver:#cdd6e0; --bronze:#e08a4a;
   }
-  /* DOM side recolours the same layout crimson */
-  body.dom{
-    --bg:#0a0406; --panel:#170c0e; --panel2:#221013; --line:#42191d;
-    --txt:#f7e9ea; --dim:#c88b8b; --accent:#e0303a; --accent2:#ff5a2a;
-    --gradtop:#33100f; --glow:rgba(224,48,58,.4);
-  }
   *{box-sizing:border-box}
   body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--txt);
     background:radial-gradient(120% 80% at 50% -10%, var(--gradtop) 0%,var(--bg) 60%);
@@ -27,15 +21,6 @@
     background:linear-gradient(90deg,var(--accent),var(--accent2));
     -webkit-background-clip:text;background-clip:text;color:transparent}
   .sub{color:var(--dim);font-size:13px;margin-top:3px}
-
-  /* top nav: Subs / Doms */
-  .nav{display:flex;gap:10px;justify-content:center;margin:16px 0 10px}
-  .nav button{flex:0 0 auto;min-width:140px;border:1px solid var(--line);background:var(--panel);
-    color:var(--dim);padding:12px 20px;border-radius:14px;cursor:pointer;font-size:15px;font-weight:800;
-    letter-spacing:.4px;transition:.15s}
-  .nav button:hover{color:var(--txt);border-color:var(--accent2)}
-  .nav button.on{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border-color:transparent;
-    box-shadow:0 8px 24px var(--glow)}
 
   .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;margin:8px 0}
   .tabs{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
@@ -83,11 +68,6 @@
     <div class="sub" id="tagline">Hall of Depravity — who's furthest gone</div>
   </header>
 
-  <div class="nav">
-    <button id="navSub" class="on" onclick="setSide('sub')">😈 Subs</button>
-    <button id="navDom" onclick="setSide('dom')">⚜ Doms</button>
-  </div>
-
   <div class="controls">
     <div class="tabs" id="viewTabs"></div>
   </div>
@@ -118,22 +98,11 @@ const SIDES = {
       partners:  {lbl:"Partners",  f:r=>+r.partners||0,  sort:(a,b)=>(b.partners||0)-(a.partners||0)},
       notoriety: {lbl:"Notoriety", f:r=>+r.notoriety||0, sort:(a,b)=>(b.notoriety||0)-(a.notoriety||0)}
     }, diff:true
-  },
-  dom: {
-    table:"doms", title:"Hall of Conquest", tag:"The apex predators — who breaks them hardest",
-    select:"name,xp,level,prestige,conquests,loads,bred,infamy,title,updated_at",
-    views:{
-      dominance:{lbl:"XP",        f:r=>+r.xp||0,        sort:(a,b)=>(b.prestige||0)-(a.prestige||0)||(b.level||0)-(a.level||0)||(b.xp||0)-(a.xp||0)},
-      conquests:{lbl:"Conquests", f:r=>+r.conquests||0, sort:(a,b)=>(b.conquests||0)-(a.conquests||0)},
-      loads:    {lbl:"Loads",     f:r=>+r.loads||0,     sort:(a,b)=>(b.loads||0)-(a.loads||0)},
-      bred:     {lbl:"Bred",      f:r=>+r.bred||0,      sort:(a,b)=>(b.bred||0)-(a.bred||0)},
-      infamy:   {lbl:"Infamy",    f:r=>+r.infamy||0,    sort:(a,b)=>(b.infamy||0)-(a.infamy||0)}
-    }, diff:false
   }
 };
 
 let side = "sub", view = "corruption", diff = "all", query = "";
-let cache = { sub:null, dom:null };
+let cache = { sub:null };
 
 function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function rel(t){ if(!t) return "—"; const d=(Date.now()-new Date(t).getTime())/1000;
@@ -175,8 +144,7 @@ function render(){
     const rk=i+1, rc=rk<=3?" r"+rk:"";
     let badges='<span class="badge">Lv '+(r.level||1)+'</span>';
     if(r.prestige>0) badges+='<span class="badge hi">Prestige '+r.prestige+'</span>';
-    if(side==="sub" && r.difficulty!=null && DIFF[r.difficulty]) badges+='<span class="badge">'+DIFF[r.difficulty]+'</span>';
-    if(side==="dom" && r.bred>0) badges+='<span class="badge">'+r.bred+' bred</span>';
+    if(r.difficulty!=null && DIFF[r.difficulty]) badges+='<span class="badge">'+DIFF[r.difficulty]+'</span>';
     if(active(r.updated_at)) badges+='<span class="badge dot">● active</span>';
     html+='<div class="row"><div class="rank'+rc+'">'+rk+'</div>'
       +'<div class="who"><div class="name">'+(esc(r.name)||"Anonymous")+'</div>'
@@ -188,9 +156,6 @@ function render(){
 
 function setSide(s){
   side=s; view=Object.keys(SIDES[s].views)[0]; diff="all";
-  document.body.classList.toggle("dom", s==="dom");
-  document.getElementById("navSub").classList.toggle("on", s==="sub");
-  document.getElementById("navDom").classList.toggle("on", s==="dom");
   document.getElementById("title").textContent = SIDES[s].title;
   document.getElementById("tagline").textContent = SIDES[s].tag;
   buildTabs(); render();
@@ -212,10 +177,9 @@ async function load(s){
 }
 
 document.getElementById("q").addEventListener("input", function(){ query=this.value.trim().toLowerCase(); render(); });
-document.getElementById("refresh").addEventListener("click", ()=>{ cache.sub=cache.dom=null; load(side); render(); });
+document.getElementById("refresh").addEventListener("click", ()=>{ cache.sub=null; load(side); render(); });
 
-// open the right side from the URL hash (#dom / #sub), default sub
-setSide(location.hash.indexOf("dom")>=0 ? "dom" : "sub");
+setSide("sub");
 setInterval(()=>{ cache[side]=null; load(side); }, 60000);
 </script>
 </body>
