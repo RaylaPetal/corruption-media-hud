@@ -185,8 +185,7 @@
     <div class="goal"><div class="gr"><span>Partners</span><b id="wpVal">0 / 0</b></div><div class="bar barG"><i id="wpFill"></i></div></div>
     <div class="goal"><div class="gr"><span>Loads</span><b id="wlVal">0 / 0</b></div><div class="bar barG"><i id="wlFill"></i></div></div>
 
-    <div class="achbtn" id="achBtn">Achievements<small id="achCount">0 / 31 unlocked</small></div>
-    <div class="achbtn" id="ownBtn" style="display:none">💞 My Owner<small id="ownName">—</small></div>
+    <div class="achbtn" id="achBtn">Achievements<small id="achCount">0 / 27 unlocked</small></div>
   </div>
 
 </div>
@@ -199,7 +198,7 @@ var ROMAN  = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
 // Goal targets — must match inm_monitor
 var DAILY_GOAL = 2000,  DAILY_PART = 2,  DAILY_LOAD = 10;
 var WEEKLY_GOAL = 12000, WEEKLY_PART = 10, WEEKLY_LOAD = 50;
-var ACH_COUNT  = 31;   // all achievements (achFlags bits)
+var ACH_COUNT  = 27;   // all achievements (achFlags bits)
 var PRESTIGE_MAX = 10;
 
 var DESIGN_W = 1000;
@@ -289,11 +288,6 @@ function render(d){
   goal("wxVal","wxFill",+d.wx, WEEKLY_GOAL); goal("wpVal","wpFill",+d.wp, WEEKLY_PART); goal("wlVal","wlFill",+d.wl, WEEKLY_LOAD);
   document.getElementById("achCount").textContent = countBits(d.ac)+" / "+ACH_COUNT+" unlocked";
 
-  // Owner button — only when actually owned (ow = owner name)
-  var owned = (d.ow && d.ow.length > 0);
-  document.getElementById("ownBtn").style.display = owned ? "" : "none";
-  if (owned) document.getElementById("ownName").textContent = d.ow + " · Bond Lv." + (+d.rl||1);
-
   clockOffset = (+d.nw) - Math.floor(Date.now()/1000);
   tickClocks();
   fitHud();
@@ -323,10 +317,6 @@ setInterval(tickClocks, 1000);
 // Achievements button → ask the LSL to open the achievements panel (link 3).
 document.getElementById("achBtn").addEventListener("click", function(){
   if (gEp) { try { fetch(gEp + "?ach=1", { mode:"no-cors" }); } catch(e){} }
-});
-// Owner button → ask the LSL to open the owner panel (link 4).
-document.getElementById("ownBtn").addEventListener("click", function(){
-  if (gEp) { try { fetch(gEp + "?own=1", { mode:"no-cors" }); } catch(e){} }
 });
 
 // Sex mode — relay the chosen intensity to inm_lovense; highlight the active one.
