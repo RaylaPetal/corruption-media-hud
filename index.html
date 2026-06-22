@@ -193,7 +193,11 @@
 <script>
 "use strict";
 var TITLES = ["Innocent One","Curious Kitten","Naughty Girl","Slutty","Filthy Slut",
-              "Cum Slut","Depraved Whore","Cock Addict","Mindless Fucktoy","Cum Dumpster"];
+              "Cum Slut","Depraved Whore","Cock Addict","Mindless Fucktoy","Cum Dumpster",
+              "Eager Cumdump","Public Fucktoy","Cock-Hungry Slut","Breeding Slut","Wanton Whore",
+              "Living Onahole","Owned Holes","Village Cumrag","Mindbroken Fuckdoll","Depravity Incarnate",
+              "Permanently Ruined","Cum Receptacle","Total Fuckmeat","Beyond Salvation","Ruined for Life",
+              "Eternal Cumslut","Legendary Whore","Goddess of Filth","Immortal Cumdump"];
 var ROMAN  = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
 // Goal targets — must match inm_monitor
 var DAILY_GOAL = 2000,  DAILY_PART = 2,  DAILY_LOAD = 10;
@@ -269,7 +273,7 @@ function render(d){
   // CORRUPTION
   document.getElementById("badge").textContent  = (pr>0?roman(pr):"0");
   document.getElementById("crank").textContent  = "RANK "+(pr>0?roman(pr):"0");
-  document.getElementById("ctitle").textContent = (d.ct||"").toUpperCase();
+  document.getElementById("ctitle").textContent = (TITLES[+d.ct] || d.ct || "").toUpperCase();
   if (xp>=pg && pg>0){ document.getElementById("cxpVal").textContent="PRESTIGE READY";
                        document.getElementById("cxpFill").style.width="100%"; }
   else { document.getElementById("cxpVal").textContent=commas(xp)+" / "+commas(pg);
