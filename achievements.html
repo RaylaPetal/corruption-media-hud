@@ -21,7 +21,7 @@
     background-clip:text;color:transparent}
   .count{font-size:1.6cqw;color:var(--muted);letter-spacing:.12cqw}
   .close{cursor:pointer;width:4cqw;height:4cqw;border-radius:50%;border:1px solid var(--stroke2);
-    display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2.4cqw;line-height:1}
+    display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2.4cqw;line-height:0}
   .close:hover{color:#fff;border-color:var(--pur)}
   .list{display:flex;flex-direction:column;gap:1.4cqw;flex:1}
   .ach{display:flex;gap:2cqw;align-items:center;min-height:9.2cqw;
@@ -145,9 +145,26 @@ function render(d){
   draw();   // keep the current page across data updates
 }
 
-function loadHash(){ var h=location.hash.slice(1); if(!h) return;
-  try{ render(JSON.parse(decodeURIComponent(h))); }catch(e){} }
-window.addEventListener("hashchange", loadHash);
+function getEndpoint(){
+  var h = location.hash.slice(1);
+  var i = h.indexOf("ep=");
+  if (i >= 0) gEp = decodeURIComponent(h.slice(i + 3));
+}
+function fetchAchData(){
+  if (!gEp) return;
+  fetch(gEp).then(function(r){ return r.json(); })
+            .then(function(d){ render(d); })
+            .catch(function(){});
+}
+var fetchStarted = false;
+function startPolling(){
+  if (!fetchStarted && gEp){ fetchStarted = true; setInterval(fetchAchData, 5000); fetchAchData(); }
+}
+function loadHash(){
+  var h = location.hash.slice(1); if (!h) return;
+  try { render(JSON.parse(decodeURIComponent(h))); } catch(e){}
+}
+window.addEventListener("hashchange", function(){ getEndpoint(); startPolling(); loadHash(); });
 
 // pagination clicks (pure client-side — no in-world script needed)
 document.getElementById("prev").addEventListener("click", function(){ gPage--; draw(); });
@@ -160,7 +177,9 @@ document.getElementById("close").addEventListener("click", function(){
   if (gEp) { try { fetch(gEp + "?ach=0", { mode:"no-cors" }); } catch(e){} }
 });
 
-draw();      // initial empty-state render so the layout shows before data arrives
+draw();
+getEndpoint();
+startPolling();
 loadHash();
 fit();
 </script>
