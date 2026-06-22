@@ -336,9 +336,10 @@ function tickClocks(){
 }
 
 function getEndpoint() {
-    const params =
-        new URLSearchParams(location.hash.substring(1));
-
+    const params = new URLSearchParams(
+        location.hash.substring(1)
+    );
+    
     return params.get("ep");
 }
 
