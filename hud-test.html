@@ -295,17 +295,23 @@ function render(d){
   var fav="—"; if(zp+za+zf>0){ if(zp>=za&&zp>=zf)fav="Pussy"; else if(za>=zf)fav="Ass"; else fav="Throat"; }
   document.getElementById("favLine").textContent = "Favorite hole: "+fav;
 
-  // PROGRESS — dynamic goal types (Rewards broadcasts active seed; fall back to XP/Partners/Loads)
+  // PROGRESS — dynamic goal types from compact "gt"/"wb"/"sz" fields
+  // gt = 6-digit string: daily type0,1,2 then weekly type0,1,2 (each 0-6, no separator)
+  // wb = weekly baselines CSV: wbFace,wbPussy,wbAss
+  // sz = session zone CSV: sFace,sPussy,sAss,sChest
   function goal(idv,fillv,cur,tgt){ document.getElementById(idv).textContent=commas(cur)+" / "+commas(tgt);
                                     document.getElementById(fillv).style.width=pct(cur,tgt)+"%"; }
-  var hasGoals = (d.g0!==undefined && d.g0!=="");
-  var dt = [hasGoals?+d.g0:0, hasGoals?+d.g1:1, hasGoals?+d.g2:2];
-  var wt = [hasGoals?+d.gw0:0, hasGoals?+d.gw1:1, hasGoals?+d.gw2:2];
-  // Weekly zone deltas: lifetime count minus the baseline snapshotted at week start
-  var wf = Math.max(0, (+d.zf||0) - (+d.wbf||0));
-  var wv = Math.max(0, (+d.zp||0) - (+d.wbp||0));
-  var wa = Math.max(0, (+d.za||0) - (+d.wba||0));
-  function dstat(ti){ var v=[+d.dx||0,+d.dp||0,+d.dl||0,+d.sf||0,+d.sc||0,+d.sv||0,+d.sa||0]; return v[ti]||0; }
+  var gt = d.gt || "012012";
+  var dt = [+gt[0]||0, +gt[1]||1, +gt[2]||2];
+  var wt = [+gt[3]||0, +gt[4]||1, +gt[5]||2];
+  var wb = (d.wb || "0,0,0").split(",");
+  var sz = (d.sz || "0,0,0,0").split(",");
+  // Weekly zone deltas: lifetime count minus baseline snapshotted at week start
+  var wf = Math.max(0, (+d.zf||0) - (+wb[0]||0));
+  var wv = Math.max(0, (+d.zp||0) - (+wb[1]||0));
+  var wa = Math.max(0, (+d.za||0) - (+wb[2]||0));
+  // sz[0]=sFace, sz[1]=sPussy, sz[2]=sAss, sz[3]=sChest
+  function dstat(ti){ var v=[+d.dx||0,+d.dp||0,+d.dl||0,+sz[0]||0,+sz[3]||0,+sz[1]||0,+sz[2]||0]; return v[ti]||0; }
   function wstat(ti){ var v=[+d.wx||0,+d.wp||0,+d.wl||0,wf,wv,wa]; return v[ti]||0; }
   var dLbls=[["dlbl0","dxVal","dxFill"],["dlbl1","dpVal","dpFill"],["dlbl2","dlVal","dlFill"]];
   var wLbls=[["wlbl0","wxVal","wxFill"],["wlbl1","wpVal","wpFill"],["wlbl2","wlVal","wlFill"]];
