@@ -339,7 +339,7 @@ function getEndpoint() {
     const params = new URLSearchParams(
         location.hash.substring(1)
     );
-    
+
     return params.get("ep");
 }
 
@@ -347,7 +347,7 @@ async function reloadHud() {
     const endpoint = getEndpoint();
 
     const response =
-        await fetch(endpoint + "?t=" + Date.now());
+        await fetch(endpoint);
 
     const data =
         await response.json();
@@ -356,11 +356,7 @@ async function reloadHud() {
 }
 
 async function loadData() {
-  const params = new URLSearchParams(
-      location.hash.substring(1)
-  );
-
-  const endpoint = params.get("ep");
+    const endpoint = getEndpoint();
     const response = await fetch(endpoint);
     const data = await response.json();
 
