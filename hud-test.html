@@ -335,6 +335,25 @@ function tickClocks(){
   else hp.style.display = "none";
 }
 
+function getEndpoint() {
+    const params =
+        new URLSearchParams(location.hash.substring(1));
+
+    return params.get("ep");
+}
+
+async function reloadHud() {
+    const endpoint = getEndpoint();
+
+    const response =
+        await fetch(endpoint + "?t=" + Date.now());
+
+    const data =
+        await response.json();
+
+    render(data);
+}
+
 async function loadData() {
   const params = new URLSearchParams(
       location.hash.substring(1)
@@ -348,6 +367,11 @@ async function loadData() {
 }
 
 setInterval(tickClocks, 1000);
+window.addEventListener(
+    "hashchange",
+    reloadHud
+);
+setInterval(reloadHud, 2000);
 
 // Achievements button → ask the LSL to open the achievements panel (link 3).
 document.getElementById("achBtn").addEventListener("click", function(){
