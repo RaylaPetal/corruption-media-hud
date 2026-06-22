@@ -86,6 +86,12 @@
 const SUPA = "https://nvaxbkqyggwfkowrtekx.supabase.co/rest/v1/";
 const KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52YXhia3F5Z2d3Zmtvd3J0ZWt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMTEyMDUsImV4cCI6MjA5NTg4NzIwNX0.-HrF4QK56BCJglhJEr2qNeTkR894RTcpYe6jStg7S_g";
 const DIFF = ["Tease","Naughty","Slut"];
+const TITLES = ["Innocent One","Curious Kitten","Naughty Girl","Slutty","Filthy Slut",
+                "Cum Slut","Depraved Whore","Cock Addict","Mindless Fucktoy","Cum Dumpster",
+                "Eager Cumdump","Public Fucktoy","Cock-Hungry Slut","Breeding Slut","Wanton Whore",
+                "Living Onahole","Owned Holes","Village Cumrag","Mindbroken Fuckdoll","Depravity Incarnate",
+                "Permanently Ruined","Cum Receptacle","Total Fuckmeat","Beyond Salvation","Ruined for Life",
+                "Eternal Cumslut","Legendary Whore","Goddess of Filth","Immortal Cumdump"];
 
 // per-side config: which table, columns, metric views, tagline
 const SIDES = {
@@ -148,7 +154,7 @@ function render(){
     if(active(r.updated_at)) badges+='<span class="badge dot">● active</span>';
     html+='<div class="row"><div class="rank'+rc+'">'+rk+'</div>'
       +'<div class="who"><div class="name">'+(esc(r.name)||"Anonymous")+'</div>'
-      +'<div class="title">'+(esc(r.title)||"—")+'</div><div class="badges">'+badges+'</div></div>'
+      +'<div class="title">'+(esc(TITLES[+r.title]||r.title)||"—")+'</div><div class="badges">'+badges+'</div></div>'
       +'<div class="metric"><div class="mval">'+v.f(r).toLocaleString()+'</div><div class="mlbl">'+v.lbl+'</div></div></div>';
   });
   board.innerHTML=html;
