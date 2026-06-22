@@ -176,14 +176,14 @@
     <div class="hd">Progress</div>
 
     <div class="sub">Daily Goals</div>
-    <div class="goal"><div class="gr"><span>XP</span><b id="dxVal">0 / 0</b></div><div class="bar barG"><i id="dxFill"></i></div></div>
-    <div class="goal"><div class="gr"><span>Partners</span><b id="dpVal">0 / 0</b></div><div class="bar barG"><i id="dpFill"></i></div></div>
-    <div class="goal"><div class="gr"><span>Loads</span><b id="dlVal">0 / 0</b></div><div class="bar barG"><i id="dlFill"></i></div></div>
+    <div class="goal"><div class="gr"><span id="dlbl0">XP</span><b id="dxVal">0 / 0</b></div><div class="bar barG"><i id="dxFill"></i></div></div>
+    <div class="goal"><div class="gr"><span id="dlbl1">Partners</span><b id="dpVal">0 / 0</b></div><div class="bar barG"><i id="dpFill"></i></div></div>
+    <div class="goal"><div class="gr"><span id="dlbl2">Loads</span><b id="dlVal">0 / 0</b></div><div class="bar barG"><i id="dlFill"></i></div></div>
 
     <div class="sub">Weekly Goals</div>
-    <div class="goal"><div class="gr"><span>XP</span><b id="wxVal">0 / 0</b></div><div class="bar barG"><i id="wxFill"></i></div></div>
-    <div class="goal"><div class="gr"><span>Partners</span><b id="wpVal">0 / 0</b></div><div class="bar barG"><i id="wpFill"></i></div></div>
-    <div class="goal"><div class="gr"><span>Loads</span><b id="wlVal">0 / 0</b></div><div class="bar barG"><i id="wlFill"></i></div></div>
+    <div class="goal"><div class="gr"><span id="wlbl0">XP</span><b id="wxVal">0 / 0</b></div><div class="bar barG"><i id="wxFill"></i></div></div>
+    <div class="goal"><div class="gr"><span id="wlbl1">Partners</span><b id="wpVal">0 / 0</b></div><div class="bar barG"><i id="wpFill"></i></div></div>
+    <div class="goal"><div class="gr"><span id="wlbl2">Loads</span><b id="wlVal">0 / 0</b></div><div class="bar barG"><i id="wlFill"></i></div></div>
 
     <div class="achbtn" id="achBtn">Achievements<small id="achCount">0 / 27 unlocked</small></div>
   </div>
@@ -199,7 +199,17 @@ var TITLES = ["Innocent One","Curious Kitten","Naughty Girl","Slutty","Filthy Sl
               "Permanently Ruined","Cum Receptacle","Total Fuckmeat","Beyond Salvation","Ruined for Life",
               "Eternal Cumslut","Legendary Whore","Goddess of Filth","Immortal Cumdump"];
 var ROMAN  = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
-// Goal targets — must match inm_monitor
+// Goal type tables — must match GOAL_DAILY/WEEKLY_LABEL/THRESH in CorruptionRewards.lsl
+// Types 0-6 daily: XP, Partners, Loads, Facials, Chest, Vaginal, Anal
+// Types 0-5 weekly: XP, Partners, Loads, Facials, Vaginal, Anal
+var DAILY_LABELS  = ["XP","Partners","Loads","Facials","Chest","Vaginal","Anal"];
+var WEEKLY_LABELS = ["XP","Partners","Loads","Facials","Vaginal","Anal"];
+var DAILY_TARGETS  = [2000,2,10,3,3,3,3];
+var WEEKLY_TARGETS = [12000,10,50,15,20,15];
+// d.xx stat key per daily/weekly type index (sf/sv/sa/sc = session zones from broadcast)
+var DAILY_STATS  = ["dx","dp","dl","sf","sc","sv","sa"];
+var WEEKLY_STATS = ["wx","wp","wl","_wf","_wv","_wa"];  // _w* computed from lifetime−baseline
+// Legacy flat constants (kept for reference; dynamic arrays above are authoritative)
 var DAILY_GOAL = 2000,  DAILY_PART = 2,  DAILY_LOAD = 10;
 var WEEKLY_GOAL = 12000, WEEKLY_PART = 10, WEEKLY_LOAD = 50;
 var ACH_COUNT  = 27;   // all achievements (achFlags bits)
@@ -285,11 +295,26 @@ function render(d){
   var fav="—"; if(zp+za+zf>0){ if(zp>=za&&zp>=zf)fav="Pussy"; else if(za>=zf)fav="Ass"; else fav="Throat"; }
   document.getElementById("favLine").textContent = "Favorite hole: "+fav;
 
-  // PROGRESS — daily/weekly goals (XP, Partners, Loads)
+  // PROGRESS — dynamic goal types (Rewards broadcasts active seed; fall back to XP/Partners/Loads)
   function goal(idv,fillv,cur,tgt){ document.getElementById(idv).textContent=commas(cur)+" / "+commas(tgt);
                                     document.getElementById(fillv).style.width=pct(cur,tgt)+"%"; }
-  goal("dxVal","dxFill",+d.dx, DAILY_GOAL);  goal("dpVal","dpFill",+d.dp, DAILY_PART);  goal("dlVal","dlFill",+d.dl, DAILY_LOAD);
-  goal("wxVal","wxFill",+d.wx, WEEKLY_GOAL); goal("wpVal","wpFill",+d.wp, WEEKLY_PART); goal("wlVal","wlFill",+d.wl, WEEKLY_LOAD);
+  var hasGoals = (d.g0!==undefined && d.g0!=="");
+  var dt = [hasGoals?+d.g0:0, hasGoals?+d.g1:1, hasGoals?+d.g2:2];
+  var wt = [hasGoals?+d.gw0:0, hasGoals?+d.gw1:1, hasGoals?+d.gw2:2];
+  // Weekly zone deltas: lifetime count minus the baseline snapshotted at week start
+  var wf = Math.max(0, (+d.zf||0) - (+d.wbf||0));
+  var wv = Math.max(0, (+d.zp||0) - (+d.wbp||0));
+  var wa = Math.max(0, (+d.za||0) - (+d.wba||0));
+  function dstat(ti){ var v=[+d.dx||0,+d.dp||0,+d.dl||0,+d.sf||0,+d.sc||0,+d.sv||0,+d.sa||0]; return v[ti]||0; }
+  function wstat(ti){ var v=[+d.wx||0,+d.wp||0,+d.wl||0,wf,wv,wa]; return v[ti]||0; }
+  var dLbls=[["dlbl0","dxVal","dxFill"],["dlbl1","dpVal","dpFill"],["dlbl2","dlVal","dlFill"]];
+  var wLbls=[["wlbl0","wxVal","wxFill"],["wlbl1","wpVal","wpFill"],["wlbl2","wlVal","wlFill"]];
+  for(var gi=0;gi<3;gi++){
+    document.getElementById(dLbls[gi][0]).textContent = DAILY_LABELS[dt[gi]]||DAILY_LABELS[gi];
+    document.getElementById(wLbls[gi][0]).textContent = WEEKLY_LABELS[wt[gi]]||WEEKLY_LABELS[gi];
+    goal(dLbls[gi][1],dLbls[gi][2], dstat(dt[gi]), DAILY_TARGETS[dt[gi]]);
+    goal(wLbls[gi][1],wLbls[gi][2], wstat(wt[gi]), WEEKLY_TARGETS[wt[gi]]);
+  }
   document.getElementById("achCount").textContent = countBits(d.ac)+" / "+ACH_COUNT+" unlocked";
 
   clockOffset = (+d.nw) - Math.floor(Date.now()/1000);
